@@ -27,9 +27,18 @@
     scrollbar-visibility: hidden;
 }
 
-#chat_log Static {
+.chat-message {
     width: 100%;
-    margin: 0 0 1 0;
+    height: auto;
+    border: hkey $background-lighten-2;
+}
+
+.user-message {
+    background: $background;
+}
+
+.bot-message {
+    background: $background-lighten-1; 
 }
 
 #user_input {

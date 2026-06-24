@@ -1,5 +1,5 @@
 from textual.app import App, ComposeResult
-from textual.containers import Container, Horizontal, VerticalScroll
+from textual.containers import Container, Horizontal, VerticalScroll, Vertical
 from textual.widgets import Placeholder, Input, Header, Footer, Static
 from datetime import datetime
 
@@ -41,12 +41,20 @@ class ExperementalTUI(App):
         chat_log = self.query_one("#chat_log", VerticalScroll)
         time_str = datetime.now().strftime("%H:%M")
 
-        user_message = Static(f"[dim][{time_str}][/dim] [bold]User:[/bold] {user_text}")
+        user_message = Vertical(
+            Static(f"[dim][{time_str}][/dim] [bold]User:[/bold]"),
+            Static(user_text),
+            classes = "chat-message user-message"
+        )
         chat_log.mount(user_message)
 
         ## Тест чата
         bot_response = f"Ваш запрос: '{user_text}' никуда не отправлен"
-        bot_message = Static(f"[dim][{time_str}][/dim] [bold]LLM:[/bold] {bot_response}")
+        bot_message = Vertical(
+            Static(f"[dim][{time_str}][/dim] [bold]LLM:[/bold]"),
+            Static(bot_response),
+            classes = "chat-message bot-message"
+        )
         chat_log.mount(bot_message)
 
         event.input.value = ""
