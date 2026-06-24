@@ -2,6 +2,7 @@ from typing import AsyncGenerator, List
 from g4f.client import AsyncClient
 from g4f_app.domain.models import Message, ProviderStatus
 from g4f_app.domain.ports import LLMProviderPort
+from g4f.Provider import __providers__
 
 class G4FAdapter(LLMProviderPort):
     def __init__(self):
@@ -23,4 +24,13 @@ class G4FAdapter(LLMProviderPort):
                 yield content
 
     async def get_provider_status(self) -> List[ProviderStatus]:
-        return []
+        status_list = []
+        for provider in __providers__:
+            if getattr(provider, 'working', False) and getattr(provider, 'models', None):
+                status = ProviderStatus(
+                    name=provider.__name__,
+                    is_working=provider.working,
+                    supported_models=provider.models
+                )
+                status_list.append(status)
+        return status_list

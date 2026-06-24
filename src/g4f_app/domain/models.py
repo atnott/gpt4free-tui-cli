@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import List
 
 @dataclass
 class Message:
@@ -9,3 +10,4 @@ class Message:
 class ProviderStatus:
     name: str
     is_working: bool
+    supported_models: List[str]
