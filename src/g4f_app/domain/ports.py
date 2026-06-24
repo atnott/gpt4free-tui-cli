@@ -1,5 +1,5 @@
 from typing import Protocol, AsyncGenerator, List
-from src.g4f_app.domain.models import Message, ProviderStatus
+from g4f_app.domain.models import Message, ProviderStatus
 
 class LLMProviderPort(Protocol):
     async def stream_chat(
