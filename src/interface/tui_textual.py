@@ -10,7 +10,11 @@ class ExperementalTUI(App):
         yield Header(id = "TUI_header")
         yield Horizontal(
             Placeholder(id = "Models_window"),
-            Placeholder(id= "Chat_window"),
+            Container(
+                RichLog(id = "chat_log"),
+                Input(id = "user_input"),
+                id = "Chat_window"
+            ),
             Placeholder(id = "Providers_window"),
             id = "Main_container"
         )
