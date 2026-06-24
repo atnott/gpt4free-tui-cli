@@ -14,8 +14,8 @@ async def run_chat(prompt: str):
         content=prompt
     )]
     print("request:", messages)
-    zaglushka ="Hi! I'm a chatbot. How can I assist you today?"
-    for char in zaglushka:
+    stub ="Hi! I'm a chatbot. How can I assist you today?"
+    for char in stub:
         print(char, end='', flush=True)
         await asyncio.sleep(0.05)
     print()
