@@ -21,9 +21,15 @@
 }
 
 #chat_log {
+    width: 100%;
     background: transparent;
     padding: 1 2;
     scrollbar-visibility: hidden;
+}
+
+#chat_log Static {
+    width: 100%;
+    margin: 0 0 1 0;
 }
 
 #user_input {
