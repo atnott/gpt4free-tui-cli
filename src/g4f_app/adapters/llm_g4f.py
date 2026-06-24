@@ -9,9 +9,11 @@ class G4FAdapter(LLMProviderPort):
 
     async def stream_chat(self, messages: List[Message], model: str, provider: str) -> str:
         formatted_messages = [{'role': m.role, 'content': m.content} for m in messages]
-        response = await self.client.chat.completions.create(
+        g4f_provider = provider if provider and provider.lower() != "auto" else None
+
+        response = self.client.chat.completions.create(
             model=model,
-            provider=provider,
+            provider=g4f_provider,
             messages=formatted_messages,
             stream=True,
         )
