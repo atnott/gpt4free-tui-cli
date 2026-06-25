@@ -52,6 +52,23 @@ class G4FEngine:
 
         return sorted(unique_models)
 
+    async def get_chat_stream(
+            self, model: str, message: str, provider: str | None = None
+    ):
+        '''Асинхронно стримит кусочки ответа от модели'''
+        response = self.client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": message}],
+            provider=provider,
+            stream=True,
+            web_search=False,
+        )
+
+        async for chunk in response:
+            content = chunk.choices[0].delta.content or ""
+            if content:
+                yield content
+
 async def main():
     engine = G4FEngine()
     providers = engine.get_available_providers()
@@ -66,6 +83,9 @@ async def main():
 
     answer = engine.get_all_models()
     print(len(answer))
+
+    async for chunk in engine.get_chat_stream(model='gpt-4o', message='Напиши стих из 4 строк'):
+        print(chunk, end="", flush=True)
 
 
 if __name__ == '__main__':
