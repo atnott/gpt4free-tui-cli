@@ -4,11 +4,21 @@ from textual.widgets import Placeholder, Input, Header, Footer, Static
 from datetime import datetime
 from rich.markdown import Markdown
 
+from ....core.engine import G4FEngine
 
 class ExperementalTUI(App):
     CSS_PATH = "styles/tui_styles.tcss"
+    DEFAULT_MODEL = "gpt-4o"
 
     def compose(self) -> ComposeResult:
+        """ Разметка интерфейса Textual
+
+        Returns:
+            ComposeResult: Интерфейс TUI
+
+        Yields:
+            Iterator[ComposeResult]: Итерируется header, основной контейнер Horizontal и footer интерфейса
+        """
         yield Header(id = "TUI_header")
         yield Horizontal(
             Placeholder(id = "Models_window"),
@@ -24,12 +34,20 @@ class ExperementalTUI(App):
 
     def on_mount(self) -> None:
         self.theme = "textual-dark"
-        
         self.query_one("#Chat_window").border_title = "Chat"
+        
+        self.engine = G4FEngine()
+        self.current_model = self.DEFAULT_MODEL
 
 
     #Ввод пользователя
-    def on_input_submitted(self, event: Input.Submitted) -> None:
+    async def on_input_submitted(self, event: Input.Submitted) -> None:
+        """При вводе пользователя отправляет текст выбранной модели, в лог чата,
+        очищает область ввода и делает потоковый вывод модели в Markdown
+
+        Args:
+            event (Input.Submitted): Текст отправляется в лог и к модели
+        """
 
         if event.input.id != "user_input":
             return
@@ -47,19 +65,43 @@ class ExperementalTUI(App):
             Static(Markdown(user_text)),
             classes = "chat-message user-message"
         )
+
         chat_log.mount(user_message)
-
-        ## Тест чата
-        bot_response = f"Ваш запрос: '{user_text}' никуда не отправлен"
-        bot_message = Vertical(
-            Static(f"[dim][{time_str}][/dim] [bold]LLM:[/bold]"),
-            Static(Markdown(bot_response)),
-            classes = "chat-message bot-message"
-        )
-        chat_log.mount(bot_message)
-
+        # Очистка окна ввода
         event.input.value = ""
         chat_log.scroll_end(animate=False)
+
+        bot_content_widget = Static("")
+        bot_message = Vertical(
+            Static(f"[dim][{time_str}][/dim] [bold green]LLM {self.current_model}:[/bold green]"),
+            bot_content_widget,
+            classes="chat-message bot-message"
+        )
+
+        chat_log.mount(bot_message)
+        chat_log.scroll_end(animate=False)
+
+        bot_content_widget.loading = True
+        full_response = ""
+
+        try:
+            async_stream = self.engine.get_chat_stream(
+                model=self.current_model,
+                message=user_text
+            )
+
+            async for chunk in async_stream:
+                if bot_content_widget.loading:
+                    bot_content_widget.loading = False
+
+                full_response += chunk
+                bot_content_widget.update(Markdown(full_response))
+                chat_log.scroll_end(animate=False)
+
+        except Exception as e:
+            bot_content_widget.loading = False
+            bot_content_widget.update(f"[bold red]Ошибка API:[/bold red] {e}")
+            chat_log.scroll_end(animate=False)
 
 
 if __name__ == "__main__":
