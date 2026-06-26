@@ -1,0 +1,60 @@
+#Main_container{
+    layout: horizontal;
+    padding: 1;
+}
+
+
+#Models_window {
+    width: 5fr;
+}
+
+/* Окно чата */
+#Chat_window {
+    border:  panel $primary;
+    margin: 0 1;
+    padding: 1 1 0 1;
+    width: 7fr;
+
+    border-title-align: center;
+    border-title-color: $accent;
+    border-title-style: bold;
+}
+
+#chat_log {
+    width: 100%;
+    background: transparent;
+    padding: 1 2;
+    scrollbar-visibility: hidden;
+}
+
+.chat-message {
+    width: 100%;
+    height: auto;
+    border: hkey $background-lighten-2;
+}
+
+.user-message {
+    background: $background;
+}
+
+.bot-message {
+    background: $background-lighten-1; 
+}
+
+#user_input {
+    background: transparent;
+    margin: 1 1;
+    border: tall $primary-darken-1;
+    padding: 0 1;
+}
+
+#user_input:focus {
+    border: tall $accent;
+    background: $background-lighten-1;
+}
+
+
+/* Статус провайдеров */
+#Providers_window {
+    width: 5fr;
+}
