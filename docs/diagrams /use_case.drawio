@@ -1,0 +1,40 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Страница-1" id="xtI6SMeDE91cVUBjOqX5">
+    <mxGraphModel dx="-690" dy="-581" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="dol45ynQSeBOQYEFh03b-26" parent="1" style="swimlane;whiteSpace=wrap;html=1;startSize=30;collapsible=0;recursiveResize=0;expand=0;fontStyle=1;fillColor=#f5f5f5;strokeColor=#666666;" value="Разрабатываемое консольное приложение" vertex="1">
+          <mxGeometry height="360" width="480" x="1900" y="1530" as="geometry" />
+        </mxCell>
+        <mxCell id="dol45ynQSeBOQYEFh03b-27" parent="dol45ynQSeBOQYEFh03b-26" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;html=1;" value="Выполнить текстовый запрос&lt;br&gt;к искусственному интеллекту" vertex="1">
+          <mxGeometry height="70" width="190" x="30" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="dol45ynQSeBOQYEFh03b-28" parent="dol45ynQSeBOQYEFh03b-26" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;html=1;" value="Просмотреть таблицу&lt;br&gt;доступных моделей" vertex="1">
+          <mxGeometry height="70" width="190" x="30" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="dol45ynQSeBOQYEFh03b-29" parent="dol45ynQSeBOQYEFh03b-26" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;html=1;" value="Просмотреть таблицу&lt;br&gt;активных провайдеров" vertex="1">
+          <mxGeometry height="70" width="190" x="30" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="dol45ynQSeBOQYEFh03b-30" parent="dol45ynQSeBOQYEFh03b-26" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;html=1;" value="Автоматически сохранить&lt;br&gt;настройки сессии" vertex="1">
+          <mxGeometry height="70" width="170" x="280" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="dol45ynQSeBOQYEFh03b-31" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Пользователь" vertex="1">
+          <mxGeometry height="60" width="30" x="1780" y="1680" as="geometry" />
+        </mxCell>
+        <mxCell id="dol45ynQSeBOQYEFh03b-32" edge="1" parent="1" source="dol45ynQSeBOQYEFh03b-31" style="edgeStyle=none;html=1;endArrow=none;endFill=0;strokeColor=#6c8ebf;strokeWidth=1.5;rounded=0;" target="dol45ynQSeBOQYEFh03b-27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dol45ynQSeBOQYEFh03b-33" edge="1" parent="1" source="dol45ynQSeBOQYEFh03b-31" style="edgeStyle=none;html=1;endArrow=none;endFill=0;strokeColor=#6c8ebf;strokeWidth=1.5;rounded=0;" target="dol45ynQSeBOQYEFh03b-28">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dol45ynQSeBOQYEFh03b-34" edge="1" parent="1" source="dol45ynQSeBOQYEFh03b-31" style="edgeStyle=none;html=1;endArrow=none;endFill=0;strokeColor=#6c8ebf;strokeWidth=1.5;rounded=0;" target="dol45ynQSeBOQYEFh03b-29">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dol45ynQSeBOQYEFh03b-35" edge="1" parent="1" source="dol45ynQSeBOQYEFh03b-27" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endSize=8;html=1;labelBackgroundColor=#ffffff;strokeColor=#666666;rounded=0;" target="dol45ynQSeBOQYEFh03b-30" value="&amp;lt;&amp;lt;включает&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
