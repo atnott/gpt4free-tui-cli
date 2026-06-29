@@ -12,12 +12,12 @@ engine = G4FEngine()
 console = Console()
 config = ConfigManager()
 
-async def stream_response(model: str, provider: str | None = None, message: str = '') -> None:
+async def stream_response(model: str, provider: str | None = None, message: str = '', web_search: bool = False) -> None:
     '''Асинхронная функция для вывода стрима и подсветки синтаксиса'''
     try:
         full_text = ''
         with Live(Markdown(full_text), console=console, refresh_per_second=15, vertical_overflow="visible") as live:
-            async for chunk in engine.get_chat_stream(model=model, provider=provider, message=message):
+            async for chunk in engine.get_chat_stream(model=model, provider=provider, message=message, web_search=web_search):
                 for char in chunk:
                     full_text += char
                     live.update(Markdown(full_text))
@@ -33,7 +33,8 @@ async def stream_response(model: str, provider: str | None = None, message: str 
 def main(
         prompt: str = typer.Option(None, '--prompt', '-p', help='Текст запроса к нейросети'),
         model: str = typer.Option(None, '--model', '-m', help='Имя модели (по умолчанию: gpt-4o)'),
-        provider: str = typer.Option(None, '--provider', '-pr', help='Имя конкретного провайдера')
+        provider: str = typer.Option(None, '--provider', '-pr', help='Имя конкретного провайдера'),
+        web: bool = typer.Option(False, '--web', '-w', help='Включить поиск в интернете')
 ) -> None:
     if prompt:
         user_settings = config.load_config()
@@ -41,8 +42,10 @@ def main(
         chosen_provider = provider or user_settings.get('last_provider', None)
 
         prov_log = f' через [{chosen_provider}]' if chosen_provider else ' (автовыбор провайдера)'
-        typer.echo(f'Запрос к модели [{chosen_model}]{prov_log}...')
-        asyncio.run(stream_response(chosen_model, chosen_provider, prompt))
+        web_log = ' [с поиском в сети]' if web else ''
+
+        typer.echo(f'Запрос к модели [{chosen_model}]{prov_log}{web_log}...')
+        asyncio.run(stream_response(chosen_model, chosen_provider, prompt, web_search=web))
     else:
         typer.echo(f'tui')
 

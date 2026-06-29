@@ -15,14 +15,14 @@ class G4FEngine:
         self.client = AsyncClient()
 
     async def get_chat_response(
-            self, model: str, message: str, provider: str | None = None
+            self, model: str, message: str, provider: str | None = None, web_search: bool = False
     ) -> str:
         '''Отправляет запрос к модели'''
         response = await self.client.chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": message}],
             provider=provider,
-            web_search=False
+            web_search=web_search
         )
         return str(response.choices[0].message.content)
 
@@ -53,7 +53,7 @@ class G4FEngine:
         return sorted(unique_models)
 
     async def get_chat_stream(
-            self, model: str, message: str, provider: str | None = None
+            self, model: str, message: str, provider: str | None = None, web_search: bool = False
     ):
         '''Асинхронно стримит кусочки ответа от модели'''
         response = self.client.chat.completions.create(
@@ -61,11 +61,15 @@ class G4FEngine:
             messages=[{"role": "user", "content": message}],
             provider=provider,
             stream=True,
-            web_search=False,
+            web_search=web_search,
         )
 
         async for chunk in response:
-            content = chunk.choices[0].delta.content or ""
+            try:
+                content = chunk.choices[0].delta.content or ""
+            except AttributeError:
+                content = str(chunk)
+
             if content:
                 yield str(content)
 
