@@ -1,0 +1,26 @@
+/* Левая боковая панель */
+#sidebar_panel {
+    width: 1fr;
+    height: 100%;
+}
+
+/* Правая часть с чатом */
+#chat_panel {
+    width: 3fr;
+    height: 100%;
+    padding: 1 2 1 1;
+    border-left: vkey $primary;
+}
+
+/* Лог сообщений сверху */
+#chat_log {
+    height: 100%;
+    background: $background-lighten-1;
+}
+
+/* Поле ввода снизу */
+#chat_input {
+    margin: 1 0 0 0;
+    height: 3;
+    dock: bottom;
+}
