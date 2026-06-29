@@ -12,12 +12,23 @@ engine = G4FEngine()
 console = Console()
 config = ConfigManager()
 
-async def stream_response(model: str, provider: str | None = None, message: str = '', web_search: bool = False) -> None:
+async def stream_response(model: str,
+                          provider: str | None = None,
+                          message: str | None = None,
+                          messages: list[dict] | None = None,
+                          web_search: bool = False,
+
+) -> None:
     '''Асинхронная функция для вывода стрима и подсветки синтаксиса'''
     try:
         full_text = ''
         with Live(Markdown(full_text), console=console, refresh_per_second=15, vertical_overflow="visible") as live:
-            async for chunk in engine.get_chat_stream(model=model, provider=provider, message=message, web_search=web_search):
+            async for chunk in engine.get_chat_stream(model=model,
+                                                      provider=provider,
+                                                      message=message,
+                                                      messages=messages,
+                                                      web_search=web_search
+            ):
                 for char in chunk:
                     full_text += char
                     live.update(Markdown(full_text))
