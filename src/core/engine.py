@@ -15,12 +15,18 @@ class G4FEngine:
         self.client = AsyncClient()
 
     async def get_chat_response(
-            self, model: str, message: str, provider: str | None = None, web_search: bool = False
+            self,
+            model: str,
+            message: str | None = None,
+            messages: list[dict] | None = None,
+            provider: str | None = None,
+            web_search: bool = False
     ) -> str:
         '''Отправляет запрос к модели'''
+        formatted_messages = messages if messages is not None else [{'role': 'user', 'content': message}]
         response = await self.client.chat.completions.create(
             model=model,
-            messages=[{"role": "user", "content": message}],
+            messages=formatted_messages,
             provider=provider,
             web_search=web_search
         )
@@ -53,12 +59,18 @@ class G4FEngine:
         return sorted(unique_models)
 
     async def get_chat_stream(
-            self, model: str, message: str, provider: str | None = None, web_search: bool = False
+            self,
+            model: str,
+            message: str | None = None,
+            messages: list[dict] | None = None,
+            provider: str | None = None,
+            web_search: bool = False
     ):
         '''Асинхронно стримит кусочки ответа от модели'''
+        formatted_messages = messages if messages is not None else [{'role': 'user', 'content': message}]
         response = self.client.chat.completions.create(
             model=model,
-            messages=[{"role": "user", "content": message}],
+            messages=formatted_messages,
             provider=provider,
             stream=True,
             web_search=web_search,
