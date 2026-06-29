@@ -67,7 +67,7 @@ class G4FEngine:
         async for chunk in response:
             content = chunk.choices[0].delta.content or ""
             if content:
-                yield content
+                yield str(content)
 
 async def main():
     engine = G4FEngine()
