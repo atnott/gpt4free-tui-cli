@@ -5,6 +5,7 @@ from rich.markdown import Markdown
 from rich.console import Console
 from core.config import ConfigManager
 from rich.table import Table
+from rich.live import Live
 
 app = typer.Typer(help='GPT4FREE Terminal Client')
 engine = G4FEngine()
@@ -15,13 +16,13 @@ async def stream_response(model: str, provider: str | None = None, message: str 
     '''Асинхронная функция для вывода стрима и подсветки синтаксиса'''
     try:
         full_text = ''
-        async for chunk in engine.get_chat_stream(model=model, provider=provider, message=message):
-            print(chunk, end="", flush=True)
-            full_text += chunk
-        print()
+        with Live(Markdown(full_text), console=console, refresh_per_second=15, vertical_overflow="visible") as live:
+            async for chunk in engine.get_chat_stream(model=model, provider=provider, message=message):
+                for char in chunk:
+                    full_text += char
+                    live.update(Markdown(full_text))
 
-        md = Markdown(full_text)
-        console.print(md)
+                    await asyncio.sleep(0.003)
 
         config.update_config(model=model, provider=provider)
 
