@@ -15,3 +15,8 @@ class ChatScreen(Screen):
             with Vertical(id="chat_panel"):
                 yield ChatLog(id="chat_log")
                 yield ChatInput(id="chat_input")
+
+            yield Vertical(
+                Placeholder(),
+                id = "info_panel"
+            )
