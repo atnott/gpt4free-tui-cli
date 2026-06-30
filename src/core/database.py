@@ -67,3 +67,22 @@ class DatabaseManager:
             INSERT INTO chats (title) VALUES (?)
             ''', (title,))
             return cursor.lastrowid
+
+    def get_all_chats(self) -> list[sqlite3.Row]:
+        '''Возвращает список всех чатов'''
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+            SELECT id, title, created_at FROM chats
+            ORDER BY id
+            DESC
+            ''')
+            return cursor.fetchall()
+
+    def delete_chat(self, chat_id: int) -> None:
+        '''Удаляет сессию чата'''
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+            DELETE FROM chats WHERE id = ?
+            ''', (chat_id,))
