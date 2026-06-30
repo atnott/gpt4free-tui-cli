@@ -14,6 +14,7 @@
 
 /* Лог сообщений сверху */
 #chat_log {
+    padding: 1 2;
     height: 100%;
     background: $background-lighten-1;
 }
