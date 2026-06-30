@@ -1,3 +1,24 @@
+UserMessage {
+    align: right top;
+    height: auto;
+    margin-bottom: 1;
+}
+
+UserMessage .bubble {
+    width: auto;
+}
+
+BotMessage {
+    align: left top;
+    height: auto;
+    margin-bottom: 1;
+}
+
+BotMessage .bubble {
+    width: 85%;
+    padding: 0 1;
+}
+
 /* Левая боковая панель */
 #sidebar_panel {
     width: 1fr;
@@ -14,7 +35,8 @@
 
 /* Лог сообщений сверху */
 #chat_log {
-    padding: 1 2;
+    scrollbar_visibility: hidden;
+    padding: 1 2 0 2;
     height: 100%;
     background: $background-lighten-1;
 }

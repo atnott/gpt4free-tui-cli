@@ -10,10 +10,11 @@ class ChatInput(Input):
             return
         
         self.value = ""
-        
         chat_log = self.screen.query_one("#chat_log")
         
-        chat_log.append_message("User", prompt)
+        # Сообщение пользователя и бота
+        chat_log.append_message(prompt, is_user=True)
+        bot_msg = chat_log.append_message("", is_user=False)
         
         bot_response = ""
         try:
@@ -23,8 +24,8 @@ class ChatInput(Input):
                 provider=self.app.provider
             ):
                 bot_response += chunk
-            
-            chat_log.append_message(self.app.model, bot_response)
+                bot_msg.update_content(bot_response)
+                chat_log.scroll_end(animate=False)
         
         except Exception as e:
-            chat_log.append_message("Engine error:", str(e), "red")
+            bot_msg.update_content(f"[red]Ошибка движка: {e}[/red]")
