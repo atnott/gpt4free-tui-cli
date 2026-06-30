@@ -58,3 +58,12 @@ class DatabaseManager:
             ''', (chat_id,))
             rows = cursor.fetchall()
             return rows[-10:]
+
+    def create_chat(self, title: str) -> None:
+        '''Создает новую сессию чата и возвращает ее id'''
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+            INSERT INTO chats (title) VALUES (?)
+            ''', (title,))
+            return cursor.lastrowid
