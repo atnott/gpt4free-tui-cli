@@ -16,6 +16,9 @@ class ChatInput(Input):
         chat_log.append_message(prompt, is_user=True)
         bot_msg = chat_log.append_message("", is_user=False)
         
+        bot_msg.loading = True
+        chat_log.scroll_end(animate=False)
+
         bot_response = ""
         try:
             async for chunk in self.app.engine.get_chat_stream(
@@ -23,6 +26,9 @@ class ChatInput(Input):
                 model=self.app.model, 
                 provider=self.app.provider
             ):
+                if bot_msg.loading:
+                    bot_msg.loading = False
+
                 bot_response += chunk
                 bot_msg.update_content(bot_response)
                 chat_log.scroll_end(animate=False)

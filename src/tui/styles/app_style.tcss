@@ -1,4 +1,5 @@
 UserMessage {
+    width: 100%;
     align: right top;
     height: auto;
     margin-bottom: 1;
@@ -6,17 +7,27 @@ UserMessage {
 
 UserMessage .bubble {
     width: auto;
+    padding: 0 2;
+    border: round $accent;
 }
 
 BotMessage {
     align: left top;
     height: auto;
+    width: 100%;
     margin-bottom: 1;
 }
 
 BotMessage .bubble {
-    width: 85%;
-    padding: 0 1;
+    width: auto;
+    max-width: 90%;
+    border: round $primary;
+    color: $text;
+    padding: 0 2;
+}
+
+BotMessage LoadingIndicator {
+    background: transparent;
 }
 
 /* Левая боковая панель */
@@ -30,15 +41,12 @@ BotMessage .bubble {
     width: 3fr;
     height: 100%;
     padding: 1 2 1 1;
-    border-left: vkey $primary;
+    border: vkey $border;
 }
 
 /* Лог сообщений сверху */
 #chat_log {
     scrollbar_visibility: hidden;
-    padding: 1 2 0 2;
-    height: 100%;
-    background: $background-lighten-1;
 }
 
 /* Поле ввода снизу */
@@ -46,4 +54,8 @@ BotMessage .bubble {
     margin: 1 0 0 0;
     height: 3;
     dock: bottom;
+}
+
+#info_panel {
+    width: 1fr;
 }
