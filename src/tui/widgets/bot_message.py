@@ -1,5 +1,6 @@
 from textual.widgets import Static
 from textual.containers import Vertical
+from rich.markdown import Markdown as RichMarkdown
 
 class BotMessage(Vertical):
     """Контейнер для ответа нейросети"""
@@ -7,7 +8,7 @@ class BotMessage(Vertical):
         super().__init__(id = id)
         self.raw_text = text
         # Создаем текстовый виджет заранее, чтобы обновлять его при стриминге
-        self.bubble = Static(classes="bubble")
+        self.bubble = Static(classes = "bubble")
 
     def compose(self):
         yield self.bubble
@@ -18,4 +19,4 @@ class BotMessage(Vertical):
     def update_content(self, new_text: str) -> None:
         """Метод для динамического обновления текста модели"""
         self.raw_text = new_text
-        self.bubble.update(f"{self.raw_text}")
+        self.bubble.update(RichMarkdown(self.raw_text, code_theme="monokai"))
