@@ -1,10 +1,19 @@
 from textual.app import App, ComposeResult
-from widgets.header import AppHeader
-from screens.chat import ChatScreen
+from tui.widgets.header import AppHeader
+from tui.screens.chat import ChatScreen
+from core.engine import G4FEngine
+from core.config import ConfigManager
 
 class G4Free_TUI(App):
 
-    CSS_PATH = "styles/app_style.tcss"
+    def __init__(self):
+        super().__init__()
+        self.engine = G4FEngine()
+        self.config = ConfigManager()
+        
+        settings = self.config.load_settings()
+        self.model = settings["last_model"] if settings else "gpt-4o"
+        self.provider = settings.get("last_provider") if settings else None
 
     def compose(self) -> ComposeResult:
         yield AppHeader()
