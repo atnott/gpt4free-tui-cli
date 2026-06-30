@@ -38,3 +38,11 @@ class DatabaseManager:
             VALUES (1, 'Основной диалог')
             ''')
 
+    def save_message(self, chat_id: int, role: str, content: str) -> None:
+        '''Сохраняет сообщение в базу данных'''
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+            INSERT OR IGNORE INTO messages (chat_id, role, content)
+            VALUES (?, ?, ?)''', (chat_id, role, content))
+
