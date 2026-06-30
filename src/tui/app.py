@@ -5,13 +5,14 @@ from core.engine import G4FEngine
 from core.config import ConfigManager
 
 class G4Free_TUI(App):
+    CSS_PATH = "styles/app_style.tcss"
 
     def __init__(self):
         super().__init__()
         self.engine = G4FEngine()
         self.config = ConfigManager()
         
-        settings = self.config.load_settings()
+        settings = self.config.load_config()
         self.model = settings["last_model"] if settings else "gpt-4o"
         self.provider = settings.get("last_provider") if settings else None
 
