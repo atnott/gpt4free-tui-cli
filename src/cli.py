@@ -6,17 +6,20 @@ from rich.console import Console
 from core.config import ConfigManager
 from rich.table import Table
 from rich.live import Live
+from core.database import DatabaseManager
 
 app = typer.Typer(help='GPT4FREE Terminal Client')
 engine = G4FEngine()
 console = Console()
 config = ConfigManager()
+db = DatabaseManager()
 
 async def stream_response(model: str,
                           provider: str | None = None,
                           message: str | None = None,
                           messages: list[dict] | None = None,
                           web_search: bool = False,
+                          chat_id: int = 1
 
 ) -> None:
     '''Асинхронная функция для вывода стрима и подсветки синтаксиса'''
@@ -37,6 +40,9 @@ async def stream_response(model: str,
 
         config.update_config(model=model, provider=provider)
 
+        if full_text.strip():
+            db.save_message(chat_id=chat_id, role='assistant', content=full_text)
+
     except Exception as e:
         typer.echo(f'\n[Ошибка генерации]: {e}', err=True)
 
@@ -45,7 +51,8 @@ def main(
         prompt: str = typer.Option(None, '--prompt', '-p', help='Текст запроса к нейросети'),
         model: str = typer.Option(None, '--model', '-m', help='Имя модели (по умолчанию: gpt-4o)'),
         provider: str = typer.Option(None, '--provider', '-pr', help='Имя конкретного провайдера'),
-        web: bool = typer.Option(False, '--web', '-w', help='Включить поиск в интернете')
+        web: bool = typer.Option(False, '--web', '-w', help='Включить поиск в интернете'),
+        chat_id: int = typer.Option(1, '--id', '-i', help='Идентификатор сессии чата')
 ) -> None:
     if prompt:
         user_settings = config.load_config()
@@ -56,7 +63,22 @@ def main(
         web_log = ' [с поиском в сети]' if web else ''
 
         typer.echo(f'Запрос к модели [{chosen_model}]{prov_log}{web_log}...')
-        asyncio.run(stream_response(chosen_model, chosen_provider, prompt, web_search=web))
+
+        db.save_message(chat_id=chat_id, role='user', content=prompt)
+        history_rows = db.get_chat_history(chat_id=chat_id)
+        formatted_messages = [
+            {'role': row['role'], 'content': row['content']}
+            for row in history_rows
+        ]
+
+        asyncio.run(stream_response(
+            model=chosen_model,
+            provider=chosen_provider,
+            message=None,
+            messages=formatted_messages,
+            web_search=web,
+            chat_id=chat_id,
+        ))
     else:
         typer.echo(f'tui')
 
