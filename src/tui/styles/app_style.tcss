@@ -71,6 +71,12 @@ ChatItem {
     padding: 0;
 }
 
+#btn_select.active-chat {
+    background: $background-lighten-2;
+    color: $text;
+    text-style: bold;
+}
+
 /*==================================================================================*/
 
 /* Центральная панель с чатом */
