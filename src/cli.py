@@ -138,6 +138,7 @@ def list_chats() -> None:
 def create_new_chat(title: str = typer.Argument('Название по умолчанию', help='Название для нового чата')) -> None:
     '''Создать новую сессию чата'''
     new_id = db.create_chat(title=title)
+    config.update_config(current_chat_id=new_id)
     console.print(f'Чат `{title}` c id: {new_id} успешно создан!')
 
 @app.command(name='select-chat')
