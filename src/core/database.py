@@ -33,10 +33,12 @@ class DatabaseManager:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (chat_id) REFERENCES chats (id) ON DELETE CASCADE
             );''')
-            cursor.execute('''
-            INSERT OR IGNORE INTO chats (id, title)
-            VALUES (1, 'Основной диалог')
-            ''')
+
+            cursor.execute("SELECT COUNT(*) FROM chats")
+            if cursor.fetchone()[0] == 0:
+                cursor.execute('''
+                INSERT INTO chats (title) VALUES ('Основной диалог')
+                ''')
 
     def save_message(self, chat_id: int, role: str, content: str) -> None:
         '''Сохраняет сообщение в базу данных'''
@@ -67,6 +69,14 @@ class DatabaseManager:
             INSERT INTO chats (title) VALUES (?)
             ''', (title,))
             return cursor.lastrowid
+        
+    def update_chat_title(self, chat_id: int, new_title: str) -> None:
+        '''Обновляет название сессии чата'''
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+            UPDATE chats SET title = ? WHERE id = ?
+            ''', (new_title, chat_id))
 
     def get_all_chats(self) -> list[sqlite3.Row]:
         '''Возвращает список всех чатов'''
