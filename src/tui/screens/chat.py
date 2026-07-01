@@ -5,13 +5,12 @@ from tui.widgets.chat_input import ChatInput
 from tui.widgets.chat_log import ChatLog
 from tui.widgets.choose_panel import ChoosePanel
 
-
 class ChatScreen(Screen):
 
     def compose(self) -> ComposeResult:
         with Horizontal():
             with Vertical(id="sidebar_panel"):
-                pass
+                yield Vertical()
             
             with Vertical(id="chat_panel"):
                 yield ChatLog(id="chat_log")

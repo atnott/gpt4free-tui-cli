@@ -12,23 +12,36 @@ class ChatInput(Input):
         self.value = ""
         chat_log = self.screen.query_one("#chat_log")
         
-        # Сообщение пользователя и бота
+        chat_id = self.app.current_chat_id
+        history_rows = self.app.db.get_chat_history(chat_id)
+        
+        messages_context = []
+        for row in history_rows:
+            messages_context.append({
+                "role": row["role"], 
+                "content": row["content"]
+            })
+        
+        messages_context.append({"role": "user", "content": prompt})
+        
+        self.app.db.save_message(chat_id, "user", prompt)
+        
         chat_log.append_message(prompt, is_user=True)
         bot_msg = chat_log.append_message("", is_user=False)
-        
         chat_log.scroll_end(animate=False)
 
         bot_response = ""
         try:
             async for chunk in self.app.engine.get_chat_stream(
-                message=prompt, 
+                messages=messages_context, 
                 model=self.app.model, 
                 provider=self.app.provider
             ):
-                
                 bot_response += chunk
                 bot_msg.update_content(bot_response)
                 chat_log.scroll_end(animate=False)
+            
+            self.app.db.save_message(chat_id, "assistant", bot_response)
         
         except Exception as e:
-            bot_msg.update_content(f"[red]Ошибка движка: {e}[/red]")
+            bot_msg.update_content(f"Ошибка движка: {e}")

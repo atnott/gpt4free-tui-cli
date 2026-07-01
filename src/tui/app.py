@@ -15,11 +15,13 @@ class G4FreeTUI(App):
 
         self.engine = G4FEngine()
         self.config = ConfigManager()
+        self.db = DatabaseManager()
 
         settings = self.config.load_config() or {}
 
         self.model = settings.get("last_model")
         self.provider = settings.get("last_provider")
+        self.current_chat_id = settings.get("current_chat_id")
 
     def compose(self) -> ComposeResult:
         yield AppHeader()
