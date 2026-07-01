@@ -6,17 +6,20 @@ from rich.console import Console
 from core.config import ConfigManager
 from rich.table import Table
 from rich.live import Live
+from core.database import DatabaseManager
 
 app = typer.Typer(help='GPT4FREE Terminal Client')
 engine = G4FEngine()
 console = Console()
 config = ConfigManager()
+db = DatabaseManager()
 
 async def stream_response(model: str,
                           provider: str | None = None,
                           message: str | None = None,
                           messages: list[dict] | None = None,
                           web_search: bool = False,
+                          chat_id: int = 1
 
 ) -> None:
     '''Асинхронная функция для вывода стрима и подсветки синтаксиса'''
@@ -35,7 +38,10 @@ async def stream_response(model: str,
 
                     await asyncio.sleep(0.003)
 
-        config.update_config(model=model, provider=provider)
+        config.update_config(last_model=model, last_provider=provider)
+
+        if full_text.strip():
+            db.save_message(chat_id=chat_id, role='assistant', content=full_text)
 
     except Exception as e:
         typer.echo(f'\n[Ошибка генерации]: {e}', err=True)
@@ -45,18 +51,35 @@ def main(
         prompt: str = typer.Option(None, '--prompt', '-p', help='Текст запроса к нейросети'),
         model: str = typer.Option(None, '--model', '-m', help='Имя модели (по умолчанию: gpt-4o)'),
         provider: str = typer.Option(None, '--provider', '-pr', help='Имя конкретного провайдера'),
-        web: bool = typer.Option(False, '--web', '-w', help='Включить поиск в интернете')
+        web: bool = typer.Option(False, '--web', '-w', help='Включить поиск в интернете'),
+        chat_id: int = typer.Option(None, '--id', '-i', help='Идентификатор сессии чата')
 ) -> None:
     if prompt:
         user_settings = config.load_config()
         chosen_model = model or user_settings.get('last_model', 'gpt-4o')
         chosen_provider = provider or user_settings.get('last_provider', None)
+        active_chat_id = chat_id or user_settings.get('current_chat_id', 1)
 
         prov_log = f' через [{chosen_provider}]' if chosen_provider else ' (автовыбор провайдера)'
         web_log = ' [с поиском в сети]' if web else ''
 
-        typer.echo(f'Запрос к модели [{chosen_model}]{prov_log}{web_log}...')
-        asyncio.run(stream_response(chosen_model, chosen_provider, prompt, web_search=web))
+        typer.echo(f'Запрос к модели [{chosen_model}]{prov_log}{web_log} в чат [ID: {active_chat_id}]...')
+
+        db.save_message(chat_id=active_chat_id, role='user', content=prompt)
+        history_rows = db.get_chat_history(chat_id=active_chat_id)
+        formatted_messages = [
+            {'role': row['role'], 'content': row['content']}
+            for row in history_rows
+        ]
+
+        asyncio.run(stream_response(
+            model=chosen_model,
+            provider=chosen_provider,
+            message=None,
+            messages=formatted_messages,
+            web_search=web,
+            chat_id=active_chat_id,
+        ))
     else:
         typer.echo(f'tui')
 
@@ -87,6 +110,55 @@ def list_providers() -> None:
         table.add_row(provider.name, models_str)
 
     console.print(table)
+
+@app.command(name='chats')
+def list_chats() -> None:
+    '''Вывести список всех существующих чатов'''
+    chats_list = db.get_all_chats()
+
+    if not chats_list:
+        console.print('У вас пока нет созданных чатов!')
+        return
+
+    user_settings = config.load_config()
+    active_chat_id = user_settings.get('current_chat_id', 1)
+
+    table = Table(title=f'Ваши диалоги ({len(chats_list)}шт)')
+    table.add_column('id чата')
+    table.add_column('Название диалога')
+    table.add_column('Дата создания')
+
+    for chat in chats_list:
+        is_active = chat['id'] == active_chat_id
+
+        row_style = 'bold green on #1a1a1a' if is_active else ''
+
+        table.add_row(
+            str(chat['id']),
+            chat['title'],
+            chat['created_at'],
+            style=row_style
+        )
+
+    console.print(table)
+
+@app.command(name='new-chat')
+def create_new_chat(title: str = typer.Argument('Название по умолчанию', help='Название для нового чата')) -> None:
+    '''Создать новую сессию чата'''
+    new_id = db.create_chat(title=title)
+    config.update_config(current_chat_id=new_id)
+    console.print(f'Чат `{title}` c id: {new_id} успешно создан!')
+
+@app.command(name='select-chat')
+def select_chat(chat_id: int = typer.Argument(1, help='id необходимого чата')) -> None:
+    '''Переключиться на указанный чат'''
+    all_chats = db.get_all_chats()
+    existing_ids = [chat['id'] for chat in all_chats]
+    if chat_id not in existing_ids:
+        console.print(f'Ошибка: Чата с id {chat_id} не существует!')
+        return
+    config.update_config(current_chat_id=chat_id)
+    console.print(f'Успешно переключено на чат id: {chat_id}')
 
 if __name__ == '__main__':
     app()
