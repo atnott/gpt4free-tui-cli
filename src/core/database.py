@@ -48,20 +48,32 @@ class DatabaseManager:
             INSERT OR IGNORE INTO messages (chat_id, role, content)
             VALUES (?, ?, ?)''', (chat_id, role, content))
 
-    def get_chat_history(self, chat_id: int) -> list[sqlite3.Row]:
-        '''Возвращает последние десять сообщений диалога'''
+    def get_chat_history(self, chat_id: int, limit: int = 10) -> list[sqlite3.Row]:
+        '''Возвращает последние N сообщений для контекста'''
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+            SELECT role, content FROM (
+                SELECT id, role, content FROM messages 
+                WHERE chat_id = ?
+                ORDER BY id DESC
+                LIMIT ?
+            ) ORDER BY id ASC
+            ''', (chat_id, limit))
+            return cursor.fetchall()
+
+    def get_all_chat_messages(self, chat_id: int) -> list[sqlite3.Row]:
+        '''Возвращает все сообщения диалога для отрисовки на экране'''
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute('''
             SELECT role, content FROM messages 
             WHERE chat_id = ?
-            ORDER BY created_at
-            ASC
+            ORDER BY id ASC
             ''', (chat_id,))
-            rows = cursor.fetchall()
-            return rows[-10:]
+            return cursor.fetchall()
 
-    def create_chat(self, title: str) -> None:
+    def create_chat(self, title: str) -> int:
         '''Создает новую сессию чата и возвращает ее id'''
         with self._get_connection() as conn:
             cursor = conn.cursor()
