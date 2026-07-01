@@ -2,32 +2,33 @@ UserMessage {
     width: 100%;
     align: right top;
     height: auto;
-    margin-bottom: 1;
+    margin-bottom: 2;
 }
 
 UserMessage .bubble {
     width: auto;
+    max-width: 90%;
     padding: 0 2;
-    border: round $accent;
+    border: tall $accent;
 }
 
 BotMessage {
     align: left top;
     height: auto;
     width: 100%;
-    margin-bottom: 1;
+    margin-bottom: 2;
 }
 
 BotMessage .bubble {
     width: auto;
     max-width: 90%;
-    border: round $primary;
+    border: tall $primary;
     color: $text;
     padding: 0 2;
 }
 
-BotMessage LoadingIndicator {
-    background: transparent;
+BotMessage BotLoading {
+    padding: 0 0 0 2;
 }
 
 /* Левая боковая панель */
@@ -40,7 +41,7 @@ BotMessage LoadingIndicator {
 #chat_panel {
     width: 3fr;
     height: 100%;
-    padding: 1 2 1 1;
+    padding: 1 1 0 1;
     border: vkey $border;
 }
 
