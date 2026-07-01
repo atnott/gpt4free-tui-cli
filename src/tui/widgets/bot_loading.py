@@ -9,5 +9,5 @@ class BotLoading(Static):
         self.set_interval(0.08, self.update_spinner)
 
     def update_spinner(self) -> None:
-        self.update(f"[bold $accent]{self.frames[self.idx]}[/]")
+        self.update(self.frames[self.idx])
         self.idx = (self.idx + 1) % len(self.frames)

@@ -1,3 +1,4 @@
+/* Сообщения пользователя */
 UserMessage {
     width: 100%;
     align: right top;
@@ -12,6 +13,7 @@ UserMessage .bubble {
     border: tall $accent;
 }
 
+/* Сообщения бота */
 BotMessage {
     align: left top;
     height: auto;
@@ -29,7 +31,10 @@ BotMessage .bubble {
 
 BotMessage BotLoading {
     padding: 0 0 0 2;
+    color: $accent;
 }
+
+/*==================================================================================*/
 
 /* Левая боковая панель */
 #sidebar_panel {
@@ -37,7 +42,9 @@ BotMessage BotLoading {
     height: 100%;
 }
 
-/* Правая часть с чатом */
+/*==================================================================================*/
+
+/* Центральная панель с чатом */
 #chat_panel {
     width: 3fr;
     height: 100%;
@@ -57,6 +64,34 @@ BotMessage BotLoading {
     dock: bottom;
 }
 
+/*==================================================================================*/
+
+/* Правая панель настроек */
 #info_panel {
     width: 1fr;
+    height: 100%;
+    padding: 1 2;
+    background: $surface;
+}
+
+#info_panel Label {
+    margin: 0 0 0 1;
+}
+
+#info_panel Select {
+    margin-bottom: 1;
+}
+
+#model > SelectCurrent {
+    border: tall $border;
+}
+
+#model > SelectOverlay {
+    border: round $border;
+    max-height: 14;
+}
+
+#providers {
+    border: solid $border;
+    height: 1fr;
 }
