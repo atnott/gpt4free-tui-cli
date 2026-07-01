@@ -13,14 +13,19 @@ class ChatInput(Input):
         chat_log = self.screen.query_one("#chat_log")
         
         chat_id = self.app.current_chat_id
-        history_rows = self.app.db.get_chat_history(chat_id)
+        history_rows = self.app.db.get_all_chat_messages(chat_id)
         
-        messages_context = []
-        for row in history_rows:
-            messages_context.append({
-                "role": row["role"], 
-                "content": row["content"]
-            })
+        messages_context = [
+        {
+            "role": row["role"],
+            "content": row["content"]
+        }
+        for row in history_rows[-self.app.MAX_CONTEXT:]]
+
+        messages_context.append({
+            "role": "user",
+            "content": prompt
+        })
         
         messages_context.append({"role": "user", "content": prompt})
         
@@ -44,4 +49,10 @@ class ChatInput(Input):
             self.app.db.save_message(chat_id, "assistant", bot_response)
         
         except Exception as e:
-            bot_msg.update_content(f"Ошибка движка: {e}")
+            bot_response = f"Ошибка: {e}"
+            bot_msg.update_content(bot_response)
+            self.app.db.save_message(
+                chat_id,
+                "assistant",
+                bot_response
+            )
