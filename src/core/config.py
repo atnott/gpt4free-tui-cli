@@ -10,7 +10,8 @@ class ConfigManager:
 
         self.default_config: dict[str, Any] = {
             'last_model': 'gpt-4o',
-            'last_provider': None
+            'last_provider': None,
+            'current_chat_id': 1
         }
 
     def _ensure_config_exists(self) -> None:
@@ -26,15 +27,12 @@ class ConfigManager:
         with open(self.config_path, 'r', encoding='utf-8') as f:
             return json.load(f)
 
-    def update_config(self, model: str, provider: str | None = None) -> None:
+    def update_config(self, **kwargs: Any) -> None:
         '''Перезаписывает настройки в файле'''
         self._ensure_config_exists()
-        with open(self.config_path, 'w', encoding='utf-8') as f:
-            new_config = dict(last_model=model, last_provider=provider)
-            json.dump(new_config, f, indent=4, ensure_ascii=False)
+        current_config = self.load_config()
 
-if __name__ == '__main__':
-    manager = ConfigManager()
-    print(manager.load_config())
-    manager.update_config(model="qwen-2.5", provider="HuggingFace")
-    print(manager.load_config())
+        current_config.update(kwargs)
+
+        with open(self.config_path, 'w', encoding='utf-8') as f:
+            json.dump(current_config, f, indent=4, ensure_ascii=False)
