@@ -27,19 +27,14 @@ class ChatSidebar(Vertical):
             )
             chat_list.mount(new_item)
 
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        """Обрабатывает нажатия на кнопки внутри сайдбара"""
         if event.button.id == "btn_create_chat":
-            new_chat_id = self.app.db.create_chat("Новый чат")
+            new_chat_id = self.app.db.create_chat("New chat")
             
-            new_item = ChatItem(chat_id=new_chat_id, title="Новый чат")
+            new_item = ChatItem(chat_id=new_chat_id, title="New chat")
             chat_list = self.query_one("#chat_list")
             chat_list.mount(new_item)
             new_item.scroll_visible()
             
             self.screen.switch_to_chat(new_chat_id)
-            
-        elif event.button.id == "btn_select":
-            chat_item = event.button.parent.parent
-            
-            self.screen.switch_to_chat(chat_item.chat_id)
