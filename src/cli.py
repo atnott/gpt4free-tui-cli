@@ -120,16 +120,24 @@ def list_chats() -> None:
         console.print('У вас пока нет созданных чатов!')
         return
 
+    user_settings = config.load_config()
+    active_chat_id = user_settings.get('current_chat_id', 1)
+
     table = Table(title=f'Ваши диалоги ({len(chats_list)}шт)')
     table.add_column('id чата')
     table.add_column('Название диалога')
     table.add_column('Дата создания')
 
     for chat in chats_list:
+        is_active = chat['id'] == active_chat_id
+
+        row_style = 'bold green on #1a1a1a' if is_active else ''
+
         table.add_row(
             str(chat['id']),
             chat['title'],
-            chat['created_at']
+            chat['created_at'],
+            style=row_style
         )
 
     console.print(table)
