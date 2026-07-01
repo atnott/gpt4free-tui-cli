@@ -8,6 +8,7 @@ from tui.widgets.header import AppHeader
 class G4FreeTUI(App):
     CSS_PATH = "styles/app_style.tcss"
     DEFAULT_THEME = "gruvbox"
+    MAX_CONTEXT = 10
     App.theme = DEFAULT_THEME
 
     def __init__(self) -> None:

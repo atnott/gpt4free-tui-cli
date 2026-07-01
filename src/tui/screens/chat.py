@@ -33,7 +33,7 @@ class ChatScreen(Screen):
         chat_log = self.query_one("#chat_log")
         chat_log.query("*").remove()
 
-        history = self.app.db.get_chat_history(chat_id)
+        history = self.app.db.get_all_chat_messages(chat_id)
         for row in history:
             is_user = (row["role"] == "user")
             chat_log.append_message(row["content"], is_user=is_user)
