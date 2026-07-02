@@ -1,16 +1,17 @@
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical
-from textual.widgets import Button
 from textual.screen import Screen
 from tui.widgets.chat_input import ChatInput
 from tui.widgets.chat_log import ChatLog
 from tui.widgets.choose_panel import ChoosePanel
 from tui.widgets.chats_sidebar import ChatSidebar
-
+from tui.widgets.header import AppHeader
 
 class ChatScreen(Screen):
 
     def compose(self) -> ComposeResult:
+        yield AppHeader(id = "Header")
+
         with Horizontal():
             yield ChatSidebar(id="sidebar")
             
@@ -43,5 +44,6 @@ class ChatScreen(Screen):
             btn = item.query_one("#btn_select")
             if item.chat_id == chat_id:
                 btn.add_class("active-chat")
+                self.app.current_chat_title = item.chat_title
             else:
                 btn.remove_class("active-chat")
