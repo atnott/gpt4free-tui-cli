@@ -1,6 +1,7 @@
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.screen import Screen
+from textual.widgets import Footer
 from tui.widgets.chat_input import ChatInput
 from tui.widgets.chat_log import ChatLog
 from tui.widgets.choose_panel import ChoosePanel
@@ -20,6 +21,7 @@ class ChatScreen(Screen):
                 yield ChatInput(id="chat_input")
 
             yield ChoosePanel(id="info_panel")
+            yield Footer(id="footer")
 
     def on_mount(self) -> None:
         """Загружает историю последнего активного чата."""

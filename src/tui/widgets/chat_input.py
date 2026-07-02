@@ -2,7 +2,7 @@ from textual.widgets import Input
 
 class ChatInput(Input):
     def __init__(self, id = None):
-        super().__init__(placeholder="Input your request...", id = id)
+        super().__init__(placeholder="[Space] Input your request...", id = id)
 
     async def on_input_submitted(self, event: Input.Submitted) -> None:
         prompt = event.value.strip()
