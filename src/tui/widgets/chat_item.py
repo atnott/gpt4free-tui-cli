@@ -24,8 +24,8 @@ class ChatItem(Widget):
             edit_input.styles.display = "none"
             yield edit_input
             
-            yield Button("Rename", id="btn_rename", classes="btn-action")
-            yield Button("Del", id="btn_delete", classes="btn-action variant-error")
+            yield Button("R", id="btn_rename", classes="btn-action")
+            yield Button("-", id="btn_delete", classes="btn-action")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         
