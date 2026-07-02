@@ -172,3 +172,21 @@ def tool(
         return func
 
     return decorator
+
+_registry = ToolRegistry()
+
+def get_global_registry() -> ToolRegistry:
+    """Возвращает глобальный реестр инструментов."""
+    return _registry
+
+def register_tool(name: str | None = None,
+    description: str | None = None,
+    parameters: list[ToolParameter] | None = None,
+):
+    """Декоратор для регистрации функции как инструмента в глобальном реестре."""
+    def decorator(func: Callable) -> Callable:
+        decorated = tool(name, description, parameters)(func)
+        if hasattr(decorated, "_tool_definition"):
+            _registry.register(decorated._tool_definition)
+        return decorated
+    return decorator
