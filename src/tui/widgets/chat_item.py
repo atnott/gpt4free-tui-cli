@@ -28,7 +28,6 @@ class ChatItem(Widget):
             yield Button("-", id="btn_delete", classes="btn-action")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        
         if event.button.id == "btn_select":
             self.screen.switch_to_chat(self.chat_id)
             
@@ -44,22 +43,7 @@ class ChatItem(Widget):
             input_rename.focus()
 
         elif event.button.id == "btn_delete":
-            self.app.db.delete_chat(self.chat_id)
-            
-            if self.chat_id == self.app.current_chat_id:
-                all_items = list(self.screen.query(ChatItem))
-                remaining_items = [item for item in all_items if item != self]
-                
-                if remaining_items:
-                    self.screen.switch_to_chat(remaining_items[0].chat_id)
-                else:
-                    new_chat_id = self.app.db.create_chat("Основной диалог")
-                    new_item = ChatItem(chat_id=new_chat_id, title="Основной диалог")
-                    chat_list = self.screen.query_one("#chat_list")
-                    chat_list.mount(new_item)
-                    self.screen.switch_to_chat(new_chat_id)
-            
-            self.remove()
+            self.app.chat_manager.delete_chat(self.app, self.screen, self)
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         if event.input.id == "input_rename":
