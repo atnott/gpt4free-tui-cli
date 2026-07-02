@@ -92,3 +92,73 @@ def python_execute(code: str) -> str:
     except Exception as e:
         sys.stdout, sys.stderr = old_stdout, old_stderr
         return f"Error: {type(e).__name__}: {e}"
+
+@register_tool(
+    name="read_project_code",
+    description="Read source code files from the project src/ directory. Use this to inspect the codebase.",
+    parameters=[
+        ToolParameter(name="filepath", type="string", description="Relative path inside src/ (e.g. 'core/engine.py')"),
+        ToolParameter(name="max_lines", type="number", description="Maximum lines to read (default 500)", required=False),
+    ],
+)
+def read_project_code(filepath: str, max_lines: int = 500) -> str:
+    """Читает файлы из директории src/ проекта.(только текстовые файлы(.py, .txt, .md, .json и т.д.))"""
+    current = Path.cwd()
+    project_root = None
+
+    for path in [current] + list(current.parents):
+        if (path / "src").is_dir() or (path / "pyproject.toml").exists():
+            project_root = path
+            break
+
+    if not project_root:
+        return json.dumps({"error": "Could not find project root (no src/ or pyproject.toml found)"})
+
+    src_dir = project_root / "src"
+    if not src_dir.exists():
+        return json.dumps({"error": "src/ directory not found in project root"})
+
+    target = (src_dir / filepath).resolve()
+    try:
+        target.relative_to(src_dir.resolve())
+    except ValueError:
+        return json.dumps({"error": "Access denied: path escapes src/ directory"})
+
+    if not target.exists():
+        return json.dumps({"error": f"File not found: {filepath}"})
+
+    if not target.is_file():
+        return json.dumps({"error": f"Not a file: {filepath}"})
+
+    try:
+        with open(target, "rb") as f:
+            chunk = f.read(8192)
+            if b"\x00" in chunk:
+                return json.dumps({"error": "Binary files are not supported"})
+    except Exception as e:
+        return json.dumps({"error": f"Failed to inspect file: {e}"})
+
+    try:
+        with open(target, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        total = len(lines)
+        truncated = total > max_lines
+        if truncated:
+            lines = lines[:max_lines]
+
+        content = "".join(lines)
+        return json.dumps({
+            "filepath": str(target.relative_to(project_root)),
+            "lines_read": len(lines),
+            "total_lines": total,
+            "truncated": truncated,
+            "content": content,
+        }, ensure_ascii=False)
+
+    except Exception as e:
+        return json.dumps({"error": f"Failed to read file: {e}"})
+
+def get_builtin_tools() -> list[Any]:
+    """Возвращает список всех встроенных инструментов из глобального реестра."""
+    return get_global_registry().list_tools()
