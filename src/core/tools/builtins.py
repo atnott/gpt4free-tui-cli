@@ -36,3 +36,17 @@ def get_current_time() -> str:
     """Возвращает текущие дату и время в формате YYYY-MM-DD HH:MM:SS (Weekday)."""
     now = datetime.datetime.now()
     return now.strftime("%Y-%m-%d %H:%M:%S (%A)")
+
+@register_tool(
+    name="get_random_number",
+    description="Generate a random number in range",
+    parameters=[
+        ToolParameter(name="min", type="number", description="Minimum value", required=False),
+        ToolParameter(name="max", type="number", description="Maximum value", required=False),
+    ],
+)
+def get_random_number(min: int = 0, max: int = 100) -> str:
+    """Генерирует случайное число в заданном диапазоне."""
+    if min > max:
+        return "Error: min should not be greater than max"
+    return str(random.randint(min, max))
