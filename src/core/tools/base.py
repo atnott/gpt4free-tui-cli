@@ -66,3 +66,55 @@ class ToolRegistry:
     def clear(self) -> None:
         """Очищает реестр инструментов."""
         self._tools.clear()
+
+class ToolExecutor:
+    """Выполняет вызовы инструментов, полученные от модели."""
+    def __init__(self, registry: ToolRegistry) -> None:
+        self.registry = registry
+    async def execute(self, tool_call: dict) -> dict:
+        """Выполняет один вызов(tool_call) и возвращает результат."""
+        func_name = tool_call.get("function", {}).get("name")
+        arguments_raw = tool_call.get("function", {}).get("arguments", "{}")
+
+        tool_def = self.registry.get(func_name)
+        if not tool_def:
+            return {"tool_call_id": tool_call.get("id"),
+                "role": "tool",
+                "name": func_name,
+                "content": json.dumps({"error": f"Tool '{func_name}' not found"}),
+            }
+        try:
+            args = json.loads(arguments_raw) if isinstance(arguments_raw, str) else arguments_raw
+        except json.JSONDecodeError:
+            return {
+                "tool_call_id": tool_call.get("id"),
+                "role": "tool",
+                "name": func_name,
+                "content": json.dumps({"error": "Invalid JSON arguments"}),
+            }
+        try:
+            func = tool_def.func
+            if func is None:
+                raise RuntimeError("Tool function is None")
+
+            if inspect.iscoroutinefunction(func):
+                result = await func(**args)
+            else:
+                result = func(**args)
+
+            if not isinstance(result, str):
+                result = json.dumps(result, ensure_ascii=False, default=str)
+
+            return {
+                "tool_call_id": tool_call.get("id"),
+                "role": "tool",
+                "name": func_name,
+                "content": str(result),
+            }
+        except Exception as e:
+            return {
+                "tool_call_id": tool_call.get("id"),
+                "role": "tool",
+                "name": func_name,
+                "content": json.dumps({"error": str(e)}),
+            }
