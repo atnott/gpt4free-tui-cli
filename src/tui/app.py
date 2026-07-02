@@ -3,6 +3,7 @@ from textual.reactive import reactive
 from core.config import ConfigManager
 from core.engine import G4FEngine
 from core.database import DatabaseManager
+from tui.tui_core.chat_manager import ChatManager
 from tui.screens.chat import ChatScreen
 from tui.widgets.header import AppHeader
 
@@ -19,6 +20,7 @@ class G4FreeTUI(App):
         self.engine = G4FEngine()
         self.config = ConfigManager()
         self.db = DatabaseManager()
+        self.chat_manager = ChatManager()
 
         settings = self.config.load_config() or {}
 
