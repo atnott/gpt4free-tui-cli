@@ -126,3 +126,49 @@ class ChatResult:
     tools_enabled: bool
     fallback_to_no_tools: bool = False
     warning: str | None = None
+
+def tool(
+        name: str | None = None,
+        description: str | None = None,
+        parameters: list[ToolParameter] | None = None,
+):
+    """Декоратор для регистрации функции как инструмента."""
+    def decorator(func: Callable) -> Callable:
+        tool_name = name or func.__name__
+        tool_desc = description or (func.__doc__ or f"Execute {tool_name}")
+
+        params = parameters or []
+        if not parameters:
+            sig = inspect.signature(func)
+            for param_name, param in sig.parameters.items():
+                if param_name == "return":
+                    continue
+                param_type = "string"
+                if param.annotation != inspect.Parameter.empty:
+                    if param.annotation in (int, float):
+                        param_type = "number"
+                    elif param.annotation == bool:
+                        param_type = "boolean"
+                    elif param.annotation == list:
+                        param_type = "array"
+                    elif param.annotation == dict:
+                        param_type = "object"
+                params.append(
+                    ToolParameter(
+                        name=param_name,
+                        type=param_type,
+                        description=f"Parameter {param_name}",
+                        required=param.default == inspect.Parameter.empty,
+                    )
+                )
+
+        defn = ToolDefinition(
+            name=tool_name,
+            description=tool_desc,
+            parameters=params,
+            func=func,
+        )
+        func._tool_definition = defn
+        return func
+
+    return decorator
