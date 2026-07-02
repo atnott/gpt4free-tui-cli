@@ -44,3 +44,27 @@ class ChatManager:
             
             btn_select = chat_item.query_one("#btn_select")
             btn_select.label = new_title
+
+    def switch_to_previous_chat(self, app: "App", screen: "Screen") -> None:
+        """Переключение на предыдущий чат"""
+        
+        all_items = list(screen.query(ChatItem))
+        if not all_items:
+            return
+        
+        current_index = next((i for i, item in enumerate(all_items) if item.chat_id == app.current_chat_id), None)
+        if current_index is not None and current_index > 0:
+            previous_item = all_items[current_index - 1]
+            screen.switch_to_chat(previous_item.chat_id)
+
+    def switch_to_next_chat(self, app: "App", screen: "Screen") -> None:
+        """Переключение на следующий чат"""
+        
+        all_items = list(screen.query(ChatItem))
+        if not all_items:
+            return
+        
+        current_index = next((i for i, item in enumerate(all_items) if item.chat_id == app.current_chat_id), None)
+        if current_index is not None and current_index < len(all_items) - 1:
+            next_item = all_items[current_index + 1]
+            screen.switch_to_chat(next_item.chat_id)

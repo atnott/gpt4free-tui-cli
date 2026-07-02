@@ -16,6 +16,8 @@ class G4FreeTUI(App):
         ("ctrl+n", "create_chat", "Create chat"),
         ("ctrl+d", "delete_chat", "Delete current chat"),
         ("ctrl+r", "rename_chat", "Rename current chat"),
+        ("ctrl+up", "switch_to_previous_chat", "Switch to previous chat"),
+        ("ctrl+down", "switch_to_next_chat", "Switch to next chat"),
     ]
 
     model = reactive("")
@@ -84,6 +86,16 @@ class G4FreeTUI(App):
                 current_item.edit_name()
             except Exception:
                 pass
+    
+    def action_switch_to_previous_chat(self) -> None:
+        """Переключение на предыдущий чат (Ctrl+Up)"""
+        self.chat_manager.switch_to_previous_chat(app=self, screen=self.screen)
+
+    def action_switch_to_next_chat(self) -> None:
+        """Переключение на следующий чат (Ctrl+Down)"""
+        self.chat_manager.switch_to_next_chat(app=self, screen=self.screen)
+            
+        
 
 if __name__ == "__main__":
     G4FreeTUI().run()
