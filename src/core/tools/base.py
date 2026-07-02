@@ -118,3 +118,11 @@ class ToolExecutor:
                 "name": func_name,
                 "content": json.dumps({"error": str(e)}),
             }
+
+@dataclass
+class ChatResult:
+    """Результат выполнения чата, включая сообщения и ошибки."""
+    content: str
+    tools_enabled: bool
+    fallback_to_no_tools: bool = False
+    warning: str | None = None
