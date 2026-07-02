@@ -11,7 +11,6 @@ class ChatSidebar(Vertical):
         with VerticalScroll(id="chat_list"):
             pass
 
-
     def on_mount(self) -> None:
         """Загружает список чатов из БД."""
         chats = self.app.db.get_all_chats()
