@@ -43,3 +43,26 @@ class ToolDefinition:
                 },
             },
         }
+
+class ToolRegistry:
+    """Реестр инструментов для взаимодействия с моделью."""
+    def __init__(self):
+        self._tools: dict[str, ToolDefinition] = {}
+
+    def register(self, tool: ToolDefinition) -> None:
+        """Регистрирует инструмент в реестре."""
+        self._tools[tool.name] = tool
+
+    def get(self, name: str) -> ToolDefinition | None:
+        """Возвращает описание инструмента по имени."""
+        return self._tools.get(name)
+
+    def list_tools(self) -> list[ToolDefinition]:
+        """Возвращает список всех зарегистрированных инструментов."""
+        return list(self._tools.values())
+    def get_schemas(self) -> list[dict]:
+        """Возвращает список схем инструментов для передачи в LLM."""
+        return [tool.to_openai_schema() for tool in self._tools.values()]
+    def clear(self) -> None:
+        """Очищает реестр инструментов."""
+        self._tools.clear()
