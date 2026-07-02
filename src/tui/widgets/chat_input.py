@@ -22,11 +22,6 @@ class ChatInput(Input):
         }
         for row in history_rows[-self.app.MAX_CONTEXT:]]
 
-        messages_context.append({
-            "role": "user",
-            "content": prompt
-        })
-        
         messages_context.append({"role": "user", "content": prompt})
         
         self.app.db.save_message(chat_id, "user", prompt)
