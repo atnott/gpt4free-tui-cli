@@ -1,3 +1,46 @@
+/* Шапка */
+
+#Header {
+    padding: 1 0 0 1;
+    height: 4;
+    width: 100%;
+    background: $primary-darken-1;
+    color: $accent;
+    border-bottom: tall $border;
+}
+
+#header_left {
+    width: 1fr;
+    padding: 0 1;
+}
+
+#header_mid {
+    width: 3fr;
+    padding: 0 1;
+}
+
+#header_right {
+    width: 1fr;
+    padding: 0 1;
+}
+
+#header_chat_title {
+    text-style: bold;
+}
+
+#header_model {
+    text-style: italic
+}
+
+#name, #header_chat_title {
+    color: $accent;
+    text-style: bold;
+}
+
+#desc, #header_model {
+    color: $accent-muted;
+}
+
 /* Сообщения пользователя */
 UserMessage {
     width: 100%;
@@ -57,27 +100,33 @@ ChatItem {
     layout: horizontal;
     height: 3;
     width: 100%;
-    border-left: tall transparent;
+    border-left: thick $foreground;
 }
 
 #btn_select {
+    background: $surface-lighten-1;
     width: 1fr;
     content-align: left middle;
+    border: none;
+    height: 100%;
 }
 
 #btn_select.active-chat {
-    background: $surface-lighten-2;
+    background: $surface-lighten-3;
     color: $text;
     text-style: bold;
 }
 
 ChatItem.active-chat-container {
-    border-left: tall $accent;
+    border: transparent;
 }
 
 /* Кнопки управления */
 #btn_rename, #btn_delete {
+    background: $surface-lighten-1;
     min-width: 5;
+    border: none;
+    height: 100%;
     content-align: center middle;
     color: $text-muted;
 }

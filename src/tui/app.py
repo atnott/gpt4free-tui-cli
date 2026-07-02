@@ -1,4 +1,5 @@
 from textual.app import App, ComposeResult
+from textual.reactive import reactive
 from core.config import ConfigManager
 from core.engine import G4FEngine
 from core.database import DatabaseManager
@@ -7,9 +8,10 @@ from tui.widgets.header import AppHeader
 
 class G4FreeTUI(App):
     CSS_PATH = "styles/app_style.tcss"
-    DEFAULT_THEME = "gruvbox"
-    MAX_CONTEXT = 10
-    App.theme = DEFAULT_THEME
+    MAX_CONTEXT = 20
+
+    model = reactive("")
+    current_chat_title = reactive("")
 
     def __init__(self) -> None:
         super().__init__()

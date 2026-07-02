@@ -69,6 +69,9 @@ class ChatItem(Widget):
                 self.chat_title = new_title
                 self.app.db.update_chat_title(self.chat_id, new_title)
                 self.query_one("#btn_select").label = new_title
+
+                if self.chat_id == self.app.current_chat_id:
+                    self.app.current_chat_title = new_title
             
             self.query_one("#btn_select").styles.display = "block"
             self.query_one("#btn_rename").styles.display = "block"
