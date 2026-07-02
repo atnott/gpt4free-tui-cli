@@ -15,6 +15,7 @@ class G4FreeTUI(App):
     BINDINGS = [
         ("ctrl+n", "create_chat", "Create chat"),
         ("ctrl+d", "delete_chat", "Delete current chat"),
+        ("ctrl+r", "rename_chat", "Rename current chat"),
     ]
 
     model = reactive("")
@@ -72,6 +73,15 @@ class G4FreeTUI(App):
             try:
                 current_item = self.screen.query_one(f"#chat_item_{self.current_chat_id}") 
                 self.chat_manager.delete_chat(app=self, screen=self.screen, chat_item=current_item)
+            except Exception:
+                pass
+
+    def action_rename_chat(self) -> None:
+        """Переименование текущего активного чата (Ctrl+R)"""
+        if self.current_chat_id is not None:
+            try:
+                current_item = self.screen.query_one(f"#chat_item_{self.current_chat_id}") 
+                current_item.edit_name()
             except Exception:
                 pass
 

@@ -12,6 +12,18 @@ class ChatItem(Widget):
         self.chat_title = title
         self.is_active = is_active
 
+    def edit_name(self) -> None:
+        """Переводит компонент в режим редактирования имени чата"""
+        btn_select = self.query_one("#btn_select")
+        btn_rename = self.query_one("#btn_rename")
+        input_rename = self.query_one("#input_rename")
+        
+        btn_select.styles.display = "none"
+        btn_rename.styles.display = "none"
+        
+        input_rename.styles.display = "block"
+        input_rename.focus()
+
     def compose(self) -> ComposeResult:
         with Horizontal(classes="chat-item-row"):
             yield Button(
@@ -32,30 +44,18 @@ class ChatItem(Widget):
             self.screen.switch_to_chat(self.chat_id)
             
         elif event.button.id == "btn_rename":
-            btn_select = self.query_one("#btn_select")
-            btn_rename = self.query_one("#btn_rename")
-            input_rename = self.query_one("#input_rename")
+            self.edit_name()
             
-            btn_select.styles.display = "none"
-            btn_rename.styles.display = "none"
-            
-            input_rename.styles.display = "block"
-            input_rename.focus()
-
         elif event.button.id == "btn_delete":
             self.app.chat_manager.delete_chat(self.app, self.screen, self)
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         if event.input.id == "input_rename":
             new_title = event.value.strip()
-            
             if new_title:
-                self.chat_title = new_title
-                self.app.db.update_chat_title(self.chat_id, new_title)
-                self.query_one("#btn_select").label = new_title
-
-                if self.chat_id == self.app.current_chat_id:
-                    self.app.current_chat_title = new_title
+                self.app.chat_manager.rename_chat(self.app, self, new_title)
+            else:
+                pass
             
             self.query_one("#btn_select").styles.display = "block"
             self.query_one("#btn_rename").styles.display = "block"
