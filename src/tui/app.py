@@ -18,6 +18,8 @@ class G4FreeTUI(App):
         ("ctrl+r", "rename_chat", "Rename current chat"),
         ("ctrl+up", "switch_to_previous_chat", "Switch to previous chat"),
         ("ctrl+down", "switch_to_next_chat", "Switch to next chat"),
+        ("ctrl+m", "switch_model", "Switch model"),
+        ("ctrl+j", "switch_provider", "Switch provider"),
     ]
 
     model = reactive("")
@@ -65,6 +67,8 @@ class G4FreeTUI(App):
                 except Exception:
                     pass
 
+    
+
     def action_create_chat(self) -> None:
         """Создание нового чата (Ctrl+N)"""
         self.chat_manager.create_new_chat(app=self, screen=self.screen)
@@ -94,6 +98,14 @@ class G4FreeTUI(App):
     def action_switch_to_next_chat(self) -> None:
         """Переключение на следующий чат (Ctrl+Down)"""
         self.chat_manager.switch_to_next_chat(app=self, screen=self.screen)
+
+    def action_switch_model(self) -> None:
+        """Переключение модели (Ctrl+M)"""
+        self.screen.query_one("#model").focus()
+
+    def action_switch_provider(self) -> None:
+        """Переключение провайдера (Ctrl+J)"""
+        self.screen.query_one("#providers").focus()
             
         
 
