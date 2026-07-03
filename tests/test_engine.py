@@ -299,3 +299,17 @@ class TestGetChatStream:
         assert call_args.kwargs["provider"] == "Bing"
         assert call_args.kwargs["web_search"] is True
         assert call_args.kwargs["stream"] is True
+
+class TestProviderStatus:
+    """Тесты датакласса ProviderStatus."""
+
+    def test_provider_status_creation(self):
+        """Создание объекта статуса провайдера."""
+        status = ProviderStatus(
+            name="TestProvider",
+            is_working=True,
+            supported_models=["gpt-4o"]
+        )
+        assert status.name == "TestProvider"
+        assert status.is_working is True
+        assert status.supported_models == ["gpt-4o"]
