@@ -208,3 +208,152 @@ class TestG4FreeTUIOnKey:
         app.on_key(mock_event)
 
         mock_event.prevent_default.assert_not_called()
+
+class TestG4FreeTUIActions:
+    """Тесты action_* методов."""
+
+    @patch("tui.app.G4FEngine")
+    @patch("tui.app.ConfigManager")
+    @patch("tui.app.DatabaseManager")
+    @patch("tui.app.ChatManager")
+    def test_action_create_chat(self, mock_chat_mgr, mock_db, mock_config, mock_engine):
+        """Создание чата через action."""
+        mock_chat_manager = MagicMock()
+        mock_chat_mgr.return_value = mock_chat_manager
+
+        with patch.object(G4FreeTUI, "push_screen"):
+            app = G4FreeTUI()
+            app.screen = MagicMock()
+
+            app.action_create_chat()
+
+        mock_chat_manager.create_new_chat.assert_called_once_with(
+            app=app, screen=app.screen
+        )
+
+    @patch("tui.app.G4FEngine")
+    @patch("tui.app.ConfigManager")
+    @patch("tui.app.DatabaseManager")
+    @patch("tui.app.ChatManager")
+    def test_action_delete_chat_with_current(self, mock_chat_mgr, mock_db, mock_config, mock_engine):
+        """Удаление текущего чата."""
+        mock_chat_manager = MagicMock()
+        mock_chat_mgr.return_value = mock_chat_manager
+
+        with patch.object(G4FreeTUI, "push_screen"):
+            app = G4FreeTUI()
+            app.current_chat_id = 5
+            app.screen = MagicMock()
+
+            mock_item = MagicMock()
+            app.screen.query_one.return_value = mock_item
+
+            app.action_delete_chat()
+
+        mock_chat_manager.delete_chat.assert_called_once_with(
+            app=app, screen=app.screen, chat_item=mock_item
+        )
+
+    @patch("tui.app.G4FEngine")
+    @patch("tui.app.ConfigManager")
+    @patch("tui.app.DatabaseManager")
+    @patch("tui.app.ChatManager")
+    def test_action_delete_chat_no_current(self, mock_chat_mgr, mock_db, mock_config, mock_engine):
+        """Удаление без текущего chat_id — ничего не делает."""
+        with patch.object(G4FreeTUI, "push_screen"):
+            app = G4FreeTUI()
+            app.current_chat_id = None
+
+            app.action_delete_chat()
+
+    @patch("tui.app.G4FEngine")
+    @patch("tui.app.ConfigManager")
+    @patch("tui.app.DatabaseManager")
+    @patch("tui.app.ChatManager")
+    def test_action_rename_chat(self, mock_chat_mgr, mock_db, mock_config, mock_engine):
+        """Переименование чата."""
+        with patch.object(G4FreeTUI, "push_screen"):
+            app = G4FreeTUI()
+            app.current_chat_id = 3
+            app.screen = MagicMock()
+
+            mock_item = MagicMock()
+            app.screen.query_one.return_value = mock_item
+
+            app.action_rename_chat()
+
+        mock_item.edit_name.assert_called_once()
+
+    @patch("tui.app.G4FEngine")
+    @patch("tui.app.ConfigManager")
+    @patch("tui.app.DatabaseManager")
+    @patch("tui.app.ChatManager")
+    def test_action_switch_to_previous_chat(self, mock_chat_mgr, mock_db, mock_config, mock_engine):
+        """Переключение на предыдущий чат."""
+        mock_chat_manager = MagicMock()
+        mock_chat_mgr.return_value = mock_chat_manager
+
+        with patch.object(G4FreeTUI, "push_screen"):
+            app = G4FreeTUI()
+            app.screen = MagicMock()
+
+            app.action_switch_to_previous_chat()
+
+        mock_chat_manager.switch_to_previous_chat.assert_called_once_with(
+            app=app, screen=app.screen
+        )
+
+    @patch("tui.app.G4FEngine")
+    @patch("tui.app.ConfigManager")
+    @patch("tui.app.DatabaseManager")
+    @patch("tui.app.ChatManager")
+    def test_action_switch_to_next_chat(self, mock_chat_mgr, mock_db, mock_config, mock_engine):
+        """Переключение на следующий чат."""
+        mock_chat_manager = MagicMock()
+        mock_chat_mgr.return_value = mock_chat_manager
+
+        with patch.object(G4FreeTUI, "push_screen"):
+            app = G4FreeTUI()
+            app.screen = MagicMock()
+
+            app.action_switch_to_next_chat()
+
+        mock_chat_manager.switch_to_next_chat.assert_called_once_with(
+            app=app, screen=app.screen
+        )
+
+    @patch("tui.app.G4FEngine")
+    @patch("tui.app.ConfigManager")
+    @patch("tui.app.DatabaseManager")
+    @patch("tui.app.ChatManager")
+    def test_action_switch_model(self, mock_chat_mgr, mock_db, mock_config, mock_engine):
+        """Фокус на выбор модели."""
+        with patch.object(G4FreeTUI, "push_screen"):
+            app = G4FreeTUI()
+            app.screen = MagicMock()
+
+            mock_model_widget = MagicMock()
+            app.screen.query_one.return_value = mock_model_widget
+
+            app.action_switch_model()
+
+        app.screen.query_one.assert_called_once_with("#model")
+        mock_model_widget.focus.assert_called_once()
+
+    @patch("tui.app.G4FEngine")
+    @patch("tui.app.ConfigManager")
+    @patch("tui.app.DatabaseManager")
+    @patch("tui.app.ChatManager")
+    def test_action_switch_provider(self, mock_chat_mgr, mock_db, mock_config, mock_engine):
+        """Фокус на выбор провайдера."""
+        with patch.object(G4FreeTUI, "push_screen"):
+            app = G4FreeTUI()
+            app.screen = MagicMock()
+
+            mock_provider_widget = MagicMock()
+            app.screen.query_one.return_value = mock_provider_widget
+
+            app.action_switch_provider()
+
+        app.screen.query_one.assert_called_once_with("#providers")
+        mock_provider_widget.focus.assert_called_once()
