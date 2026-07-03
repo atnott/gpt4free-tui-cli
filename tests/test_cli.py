@@ -261,3 +261,33 @@ class TestListChatsCommand:
         table = mock_console.print.call_args[0][0]
         table_str = str(table.render())
         assert "Active" in table_str
+
+class TestNewChatCommand:
+    """Тесты команды new-chat."""
+
+    @patch("cli.db")
+    @patch("cli.config")
+    @patch("cli.console")
+    def test_create_new_chat(self, mock_console, mock_config, mock_db):
+        """Создание нового чата."""
+        mock_db.create_chat.return_value = 5
+        
+        result = runner.invoke(app, ["new-chat", "My New Chat"])
+        
+        assert result.exit_code == 0
+        mock_db.create_chat.assert_called_once_with(title="My New Chat")
+        mock_config.update_config.assert_called_once_with(current_chat_id=5)
+        assert "успешно создан" in result.output
+        assert "id: 5" in result.output
+
+    @patch("cli.db")
+    @patch("cli.config")
+    @patch("cli.console")
+    def test_create_new_chat_default_title(self, mock_console, mock_config, mock_db):
+        """Создание чата с названием по умолчанию."""
+        mock_db.create_chat.return_value = 2
+        
+        result = runner.invoke(app, ["new-chat"])
+        
+        assert result.exit_code == 0
+        mock_db.create_chat.assert_called_once_with(title="Название по умолчанию")
