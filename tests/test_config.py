@@ -52,3 +52,20 @@ class TestEnsureConfigExists:
         with open(config_manager.config_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         assert data == {"custom": "value"}
+
+class TestLoadConfig:
+    """Тесты загрузки конфигурации."""
+
+    def test_loads_existing_config(self, config_manager):
+        """Загрузка существующего конфига."""
+        config_manager._ensure_config_exists()
+        config = config_manager.load_config()
+        assert config['last_model'] == 'gpt-4o'
+        assert config['current_chat_id'] == 1
+
+    def test_creates_and_loads_if_missing(self, config_manager):
+        """Создание и загрузка при отсутствии файла."""
+        assert not config_manager.config_path.exists()
+        config = config_manager.load_config()
+        assert config == config_manager.default_config
+        assert config_manager.config_path.exists()
