@@ -157,3 +157,28 @@ class TestMainCommand:
                 {'role': 'user', 'content': 'Q1'},
                 {'role': 'assistant', 'content': 'A1'},
             ]
+
+class TestListModelsCommand:
+    """Тесты команды models."""
+
+    @patch("cli.engine")
+    @patch("cli.console")
+    def test_list_models(self, mock_console, mock_engine):
+        """Вывод списка моделей."""
+        mock_engine.get_all_models.return_value = ["gpt-4o", "claude-3", "llama-3"]
+        
+        result = runner.invoke(app, ["models"])
+        
+        assert result.exit_code == 0
+        mock_console.print.assert_called_once()
+        table = mock_console.print.call_args[0][0]
+        assert "gpt-4o" in str(table.render())
+        assert "claude-3" in str(table.render())
+
+    @patch("cli.engine")
+    def test_list_models_empty(self, mock_engine):
+        """Пустой список моделей."""
+        mock_engine.get_all_models.return_value = []
+        
+        result = runner.invoke(app, ["models"])
+        assert result.exit_code == 0
