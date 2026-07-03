@@ -192,3 +192,110 @@ class TestGetAllModels:
         with patch("core.engine.__providers__", []):
             models = engine.get_all_models()
             assert models == []
+
+class TestGetChatStream:
+    """Тесты стримингового получения ответа."""
+
+    @pytest.mark.asyncio
+    async def test_get_chat_stream_basic(self, engine, mock_g4f_client):
+        """Базовый стриминг."""
+        chunk1 = MagicMock()
+        chunk1.choices = [MagicMock(delta=MagicMock(content="Привет"))]
+        chunk2 = MagicMock()
+        chunk2.choices = [MagicMock(delta=MagicMock(content=" мир"))]
+
+        async def async_generator():
+            yield chunk1
+            yield chunk2
+
+        mock_g4f_client.chat.completions.create.return_value = async_generator()
+
+        result = []
+        async for chunk in engine.get_chat_stream(model="gpt-4o", message="Test"):
+            result.append(chunk)
+
+        assert result == ["Привет", " мир"]
+
+    @pytest.mark.asyncio
+    async def test_get_chat_stream_with_messages(self, engine, mock_g4f_client):
+        """Стриминг с историей сообщений."""
+        chunk = MagicMock()
+        chunk.choices = [MagicMock(delta=MagicMock(content="Ответ"))]
+
+        async def async_generator():
+            yield chunk
+
+        mock_g4f_client.chat.completions.create.return_value = async_generator()
+
+        messages = [{"role": "user", "content": "Вопрос"}]
+        result = []
+        async for chunk in engine.get_chat_stream(model="gpt-4o", messages=messages):
+            result.append(chunk)
+
+        call_args = mock_g4f_client.chat.completions.create.call_args
+        assert call_args.kwargs["messages"] == messages
+        assert call_args.kwargs["stream"] is True
+
+    @pytest.mark.asyncio
+    async def test_get_chat_stream_empty_chunks(self, engine, mock_g4f_client):
+        """Пропуск пустых чанков."""
+        chunk1 = MagicMock()
+        chunk1.choices = [MagicMock(delta=MagicMock(content=""))]
+        chunk2 = MagicMock()
+        chunk2.choices = [MagicMock(delta=MagicMock(content="Текст"))]
+
+        async def async_generator():
+            yield chunk1
+            yield chunk2
+
+        mock_g4f_client.chat.completions.create.return_value = async_generator()
+
+        result = []
+        async for chunk in engine.get_chat_stream(model="gpt-4o", message="Test"):
+            result.append(chunk)
+
+        assert result == ["Текст"]
+
+    @pytest.mark.asyncio
+    async def test_get_chat_stream_attribute_error(self, engine, mock_g4f_client):
+        """Обработка AttributeError (нет choices/delta)."""
+        chunk = MagicMock()
+        # choices отсутствует, вызовет AttributeError
+        del chunk.choices
+
+        async def async_generator():
+            yield chunk
+
+        mock_g4f_client.chat.completions.create.return_value = async_generator()
+
+        result = []
+        async for chunk in engine.get_chat_stream(model="gpt-4o", message="Test"):
+            result.append(chunk)
+
+        # Должен вернуть str(chunk) при AttributeError
+        assert len(result) == 1
+
+    @pytest.mark.asyncio
+    async def test_get_chat_stream_with_provider_and_web_search(self, engine, mock_g4f_client):
+        """Стриминг с провайдером и веб-поиском."""
+        chunk = MagicMock()
+        chunk.choices = [MagicMock(delta=MagicMock(content="OK"))]
+
+        async def async_generator():
+            yield chunk
+
+        mock_g4f_client.chat.completions.create.return_value = async_generator()
+
+        result = []
+        async for chunk in engine.get_chat_stream(
+            model="gpt-4o",
+            message="Test",
+            provider="Bing",
+            web_search=True
+        ):
+            result.append(chunk)
+
+        call_args = mock_g4f_client.chat.completions.create.call_args
+        assert call_args.kwargs["provider"] == "Bing"
+        assert call_args.kwargs["web_search"] is True
+        assert call_args.kwargs["stream"] is True
