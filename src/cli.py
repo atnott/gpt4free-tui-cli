@@ -7,6 +7,7 @@ from core.config import ConfigManager
 from rich.table import Table
 from rich.live import Live
 from core.database import DatabaseManager
+from tui.app import G4FreeTUI
 
 app = typer.Typer(help='GPT4FREE Terminal Client')
 engine = G4FEngine()
@@ -81,7 +82,7 @@ def main(
             chat_id=active_chat_id,
         ))
     else:
-        typer.echo(f'tui')
+        G4FreeTUI().run()
 
 @app.command(name='models')
 def list_models() -> None:

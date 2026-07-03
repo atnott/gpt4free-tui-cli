@@ -1,0 +1,197 @@
+/* Шапка */
+
+#Header {
+    padding: 1 0 0 1;
+    height: 4;
+    width: 100%;
+    background: $primary-darken-1;
+    color: $accent;
+    border-bottom: tall $border;
+}
+
+#header_left {
+    width: 1fr;
+    padding: 0 1;
+}
+
+#header_mid {
+    width: 3fr;
+    padding: 0 1;
+}
+
+#header_right {
+    width: 1fr;
+    padding: 0 1;
+    color: $text-muted;
+    text-style: italic;
+}
+
+#name, #header_chat_title {
+    color: $text;
+    text-style: bold;
+}
+
+#desc, #header_model {
+    color: $text-muted;
+    text-style: italic;
+}
+
+/* Сообщения пользователя */
+UserMessage {
+    width: 100%;
+    align: right top;
+    height: auto;
+    margin-bottom: 2;
+}
+
+UserMessage .bubble {
+    width: auto;
+    max-width: 90%;
+    padding: 0 2;
+    border: tall $accent;
+}
+
+/* Сообщения бота */
+BotMessage {
+    align: left top;
+    height: auto;
+    width: 100%;
+    margin-bottom: 2;
+}
+
+BotMessage .bubble {
+    width: auto;
+    max-width: 90%;
+    border: tall $primary;
+    color: $text;
+    padding: 0 2;
+}
+
+BotMessage BotLoading {
+    padding: 0 0 0 2;
+    color: $accent;
+}
+
+/*==================================================================================*/
+
+/* Левая боковая панель */
+#sidebar {
+    background: $surface;
+    padding: 0;
+    width: 1fr;
+    height: 100%;
+}
+
+#btn_create_chat {
+    width: 100%;
+    height: 3;
+    dock: bottom;
+    border: none;
+    content-align: center middle;
+    background: $surface-lighten-1;
+    margin: 1 2 1 1;
+}
+
+ChatItem {
+    layout: horizontal;
+    height: 3;
+    width: 100%;
+    border-left: thick $primary-lighten-2;
+}
+
+#btn_select {
+    background: $surface-lighten-1;
+    width: 1fr;
+    content-align: left middle;
+    border: none;
+    height: 100%;
+}
+
+#btn_select.active-chat {
+    background: $surface-lighten-3;
+    color: $text;
+    text-style: bold;
+}
+
+ChatItem.active-chat-container {
+    border: transparent;
+}
+
+/* Кнопки управления */
+#btn_rename, #btn_delete {
+    background: $surface-lighten-1;
+    min-width: 5;
+    border: none;
+    height: 100%;
+    content-align: center middle;
+    color: $text-muted;
+}
+
+#btn_rename:hover {
+    color: $text;
+}
+
+#btn_delete:hover {
+    color: $text;
+    background: $error;
+}
+
+/*==================================================================================*/
+
+/* Центральная панель с чатом */
+#chat_panel {
+    width: 3fr;
+    height: 100%;
+    padding: 1 1 0 1;
+    border: vkey $border;
+}
+
+/* Лог сообщений сверху */
+#chat_log {
+    scrollbar_visibility: hidden;
+}
+
+/* Поле ввода снизу */
+#chat_input {
+    margin: 1 0 0 0;
+    height: 3;
+    dock: bottom;
+}
+
+/*==================================================================================*/
+
+/* Правая панель настроек */
+#info_panel {
+    width: 1fr;
+    height: 100%;
+    padding: 1 2;
+    background: $surface;
+}
+
+#info_panel Label {
+    margin: 0 0 0 1;
+}
+
+#info_panel Select {
+    margin-bottom: 1;
+}
+
+#model_label {
+    padding-left: 1;
+    color: $accent;
+    text-style: italic;
+}
+
+#model > SelectCurrent {
+    border: tall $border;
+}
+
+#model > SelectOverlay {
+    border: round $border;
+    max-height: 14;
+}
+
+#providers {
+    border: solid $border;
+    height: 1fr;
+}
