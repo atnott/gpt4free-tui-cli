@@ -106,3 +106,49 @@ class TestDeleteChat:
         mock_app.db.delete_chat.assert_called_once_with(1)
         mock_create.assert_called_once_with(mock_app, mock_screen, "New Chat")
         mock_item.remove.assert_called_once()
+
+class TestRenameChat:
+    """Тесты переименования чата."""
+
+    def test_rename_chat_success(self, mock_app, mock_screen):
+        """Успешное переименование."""
+        manager = ChatManager()
+
+        mock_item = MagicMock()
+        mock_item.chat_id = 5
+        mock_item.chat_title = "Old Name"
+
+        mock_btn = MagicMock()
+        mock_item.query_one.return_value = mock_btn
+
+        manager.rename_chat(mock_app, mock_item, "New Name")
+
+        assert mock_item.chat_title == "New Name"
+        mock_app.db.update_chat_title.assert_called_once_with(5, "New Name")
+        mock_btn.label.assert_called_once_with("New Name")
+
+    def test_rename_chat_current_updates_app_title(self, mock_app, mock_screen):
+        """Переименование текущего чата обновляет заголовок приложения."""
+        manager = ChatManager()
+
+        mock_item = MagicMock()
+        mock_item.chat_id = 3
+        mock_app.current_chat_id = 3
+
+        mock_btn = MagicMock()
+        mock_item.query_one.return_value = mock_btn
+
+        manager.rename_chat(mock_app, mock_item, "Updated")
+
+        assert mock_app.current_chat_title == "Updated"
+
+    def test_rename_chat_empty_title(self, mock_app, mock_screen):
+        """Пустое название — ничего не делает."""
+        manager = ChatManager()
+
+        mock_item = MagicMock()
+        mock_item.chat_id = 1
+
+        manager.rename_chat(mock_app, mock_item, "   ")
+
+        mock_app.db.update_chat_title.assert_not_called()
