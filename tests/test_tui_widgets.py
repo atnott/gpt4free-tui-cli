@@ -237,3 +237,162 @@ class TestChatLog:
 
         mock_bot_msg.assert_called_once_with("Response")
         assert result == mock_widget
+
+class TestChatItem:
+    """Тесты элемента чата в списке."""
+
+    def test_init(self):
+        """Инициализация."""
+        item = ChatItem(chat_id=5, title="Test Chat", is_active=True)
+        assert item.chat_id == 5
+        assert item.chat_title == "Test Chat"
+        assert item.is_active is True
+        assert item.id == "chat_item_5"
+
+    def test_init_not_active(self):
+        """Инициализация неактивного."""
+        item = ChatItem(chat_id=1, title="Chat")
+        assert item.is_active is False
+
+    def test_compose(self):
+        """Компоновка содержит кнопки и input."""
+        item = ChatItem(chat_id=1, title="Chat")
+        children = list(item.compose())
+        assert len(children) == 1
+
+    def test_edit_name(self):
+        """Перевод в режим редактирования."""
+        item = ChatItem(chat_id=1, title="Chat")
+        mock_btn_select = MagicMock()
+        mock_btn_rename = MagicMock()
+        mock_input = MagicMock()
+
+        def mock_query_one(selector):
+            if selector == "#btn_select":
+                return mock_btn_select
+            elif selector == "#btn_rename":
+                return mock_btn_rename
+            elif selector == "#input_rename":
+                return mock_input
+
+        item.query_one = mock_query_one
+
+        item.edit_name()
+
+        assert mock_btn_select.styles.display == "none"
+        assert mock_btn_rename.styles.display == "none"
+        assert mock_input.styles.display == "block"
+        mock_input.focus.assert_called_once()
+
+    def test_on_button_pressed_select(self):
+        """Нажатие кнопки выбора чата."""
+        item = ChatItem(chat_id=3, title="Chat")
+        item.app = MagicMock()
+        item.screen = MagicMock()
+
+        mock_button = MagicMock()
+        mock_button.id = "btn_select"
+
+        event = MagicMock()
+        event.button = mock_button
+
+        item.on_button_pressed(event)
+
+        item.screen.switch_to_chat.assert_called_once_with(3)
+
+    def test_on_button_pressed_rename(self):
+        """Нажатие кнопки переименования."""
+        item = ChatItem(chat_id=1, title="Chat")
+        item.edit_name = MagicMock()
+
+        mock_button = MagicMock()
+        mock_button.id = "btn_rename"
+
+        event = MagicMock()
+        event.button = mock_button
+
+        item.on_button_pressed(event)
+
+        item.edit_name.assert_called_once()
+
+    def test_on_button_pressed_delete(self):
+        """Нажатие кнопки удаления."""
+        item = ChatItem(chat_id=2, title="Chat")
+        item.app = MagicMock()
+
+        mock_button = MagicMock()
+        mock_button.id = "btn_delete"
+
+        event = MagicMock()
+        event.button = mock_button
+
+        item.on_button_pressed(event)
+
+        item.app.chat_manager.delete_chat.assert_called_once_with(
+            item.app, item.screen, item
+        )
+
+    def test_on_input_submitted_rename(self):
+        """Подтверждение переименования."""
+        item = ChatItem(chat_id=1, title="Old")
+        item.app = MagicMock()
+
+        mock_input = MagicMock()
+        mock_input.id = "input_rename"
+
+        event = MagicMock()
+        event.input = mock_input
+        event.value = "New Title"
+
+        mock_btn_select = MagicMock()
+        mock_btn_rename = MagicMock()
+        mock_input_rename = MagicMock()
+
+        def mock_query_one(selector):
+            mapping = {
+                "#btn_select": mock_btn_select,
+                "#btn_rename": mock_btn_rename,
+                "#input_rename": mock_input_rename,
+            }
+            return mapping[selector]
+
+        item.query_one = mock_query_one
+
+        item.on_input_submitted(event)
+
+        item.app.chat_manager.rename_chat.assert_called_once_with(
+            item.app, item, "New Title"
+        )
+        assert mock_btn_select.styles.display == "block"
+        assert mock_btn_rename.styles.display == "block"
+        assert mock_input_rename.styles.display == "none"
+
+    def test_on_input_submitted_empty(self):
+        """Пустое название — отмена переименования."""
+        item = ChatItem(chat_id=1, title="Old")
+        item.app = MagicMock()
+
+        mock_input = MagicMock()
+        mock_input.id = "input_rename"
+
+        event = MagicMock()
+        event.input = mock_input
+        event.value = "   "
+
+        mock_btn_select = MagicMock()
+        mock_btn_rename = MagicMock()
+        mock_input_rename = MagicMock()
+
+        def mock_query_one(selector):
+            mapping = {
+                "#btn_select": mock_btn_select,
+                "#btn_rename": mock_btn_rename,
+                "#input_rename": mock_input_rename,
+            }
+            return mapping[selector]
+
+        item.query_one = mock_query_one
+
+        item.on_input_submitted(event)
+
+        item.app.chat_manager.rename_chat.assert_not_called()
