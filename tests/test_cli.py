@@ -212,3 +212,52 @@ class TestListProvidersCommand:
         
         result = runner.invoke(app, ["providers"])
         assert result.exit_code == 0
+
+class TestListChatsCommand:
+    """Тесты команды chats."""
+
+    @patch("cli.db")
+    @patch("cli.config")
+    @patch("cli.console")
+    def test_list_chats(self, mock_console, mock_config, mock_db):
+        """Вывод списка чатов."""
+        mock_db.get_all_chats.return_value = [
+            {'id': 1, 'title': 'Chat 1', 'created_at': '2024-01-01'},
+            {'id': 2, 'title': 'Chat 2', 'created_at': '2024-01-02'},
+        ]
+        mock_config.load_config.return_value = {'current_chat_id': 1}
+        
+        result = runner.invoke(app, ["chats"])
+        
+        assert result.exit_code == 0
+        mock_console.print.assert_called_once()
+
+    @patch("cli.db")
+    @patch("cli.console")
+    def test_list_chats_empty(self, mock_console, mock_db):
+        """Пустой список чатов."""
+        mock_db.get_all_chats.return_value = []
+        
+        result = runner.invoke(app, ["chats"])
+        
+        assert result.exit_code == 0
+        assert "нет созданных чатов" in result.output
+
+    @patch("cli.db")
+    @patch("cli.config")
+    @patch("cli.console")
+    def test_list_chats_highlights_active(self, mock_console, mock_config, mock_db):
+        """Подсветка активного чата."""
+        mock_db.get_all_chats.return_value = [
+            {'id': 1, 'title': 'Active', 'created_at': '2024-01-01'},
+            {'id': 2, 'title': 'Inactive', 'created_at': '2024-01-02'},
+        ]
+        mock_config.load_config.return_value = {'current_chat_id': 1}
+        
+        result = runner.invoke(app, ["chats"])
+        
+        assert result.exit_code == 0
+
+        table = mock_console.print.call_args[0][0]
+        table_str = str(table.render())
+        assert "Active" in table_str
