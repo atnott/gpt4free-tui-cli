@@ -20,3 +20,35 @@ class TestConfigManagerInitialization:
         """Пути конфигурации установлены правильно."""
         assert config_manager.config_dir == temp_dir / ".config" / "gpt4free-tui-cli"
         assert config_manager.config_path == temp_dir / ".config" / "gpt4free-tui-cli" / "test_config.json"
+
+class TestEnsureConfigExists:
+    """Тесты создания конфигурации."""
+
+    def test_creates_directory_if_not_exists(self, config_manager):
+        """Создание директории при отсутствии."""
+        assert not config_manager.config_dir.exists()
+        config_manager._ensure_config_exists()
+        assert config_manager.config_dir.exists()
+
+    def test_creates_file_with_defaults(self, config_manager):
+        """Создание файла с дефолтными настройками."""
+        config_manager._ensure_config_exists()
+        assert config_manager.config_path.exists()
+
+        with open(config_manager.config_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        assert data == config_manager.default_config
+
+    def test_does_not_overwrite_existing(self, config_manager):
+        """Не перезаписывает существующий файл."""
+        config_manager._ensure_config_exists()
+        
+        # Меняем содержимое
+        with open(config_manager.config_path, 'w', encoding='utf-8') as f:
+            json.dump({"custom": "value"}, f)
+
+        config_manager._ensure_config_exists()
+        
+        with open(config_manager.config_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        assert data == {"custom": "value"}
