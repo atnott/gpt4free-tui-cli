@@ -152,3 +152,101 @@ class TestRenameChat:
         manager.rename_chat(mock_app, mock_item, "   ")
 
         mock_app.db.update_chat_title.assert_not_called()
+
+class TestSwitchToPreviousChat:
+    """Тесты переключения на предыдущий чат."""
+
+    def test_switch_to_previous(self, mock_app, mock_screen):
+        """Переключение на предыдущий чат."""
+        manager = ChatManager()
+
+        mock_item1 = MagicMock()
+        mock_item1.chat_id = 1
+        mock_item2 = MagicMock()
+        mock_item2.chat_id = 2
+        mock_item3 = MagicMock()
+        mock_item3.chat_id = 3
+
+        mock_app.current_chat_id = 2
+        mock_screen.query.return_value = [mock_item1, mock_item2, mock_item3]
+
+        manager.switch_to_previous_chat(mock_app, mock_screen)
+
+        mock_screen.switch_to_chat.assert_called_once_with(1)
+
+    def test_switch_to_previous_first_chat(self, mock_app, mock_screen):
+        """Первый чат — некуда переключаться."""
+        manager = ChatManager()
+
+        mock_item = MagicMock()
+        mock_item.chat_id = 1
+
+        mock_app.current_chat_id = 1
+        mock_screen.query.return_value = [mock_item]
+
+        manager.switch_to_previous_chat(mock_app, mock_screen)
+
+        mock_screen.switch_to_chat.assert_not_called()
+
+    def test_switch_to_previous_no_chats(self, mock_app, mock_screen):
+        """Нет чатов."""
+        manager = ChatManager()
+
+        mock_app.current_chat_id = None
+        mock_screen.query.return_value = []
+
+        manager.switch_to_previous_chat(mock_app, mock_screen)
+
+        mock_screen.switch_to_chat.assert_not_called()
+
+    def test_switch_to_previous_current_not_found(self, mock_app, mock_screen):
+        """Текущий чат не найден в списке."""
+        manager = ChatManager()
+
+        mock_item = MagicMock()
+        mock_item.chat_id = 1
+
+        mock_app.current_chat_id = 999
+        mock_screen.query.return_value = [mock_item]
+
+        manager.switch_to_previous_chat(mock_app, mock_screen)
+
+        mock_screen.switch_to_chat.assert_not_called()
+
+
+class TestSwitchToNextChat:
+    """Тесты переключения на следующий чат."""
+
+    def test_switch_to_next(self, mock_app, mock_screen):
+        """Переключение на следующий чат."""
+        manager = ChatManager()
+
+        mock_item1 = MagicMock()
+        mock_item1.chat_id = 1
+        mock_item2 = MagicMock()
+        mock_item2.chat_id = 2
+        mock_item3 = MagicMock()
+        mock_item3.chat_id = 3
+
+        mock_app.current_chat_id = 2
+        mock_screen.query.return_value = [mock_item1, mock_item2, mock_item3]
+
+        manager.switch_to_next_chat(mock_app, mock_screen)
+
+        mock_screen.switch_to_chat.assert_called_once_with(3)
+
+    def test_switch_to_next_last_chat(self, mock_app, mock_screen):
+        """Последний чат — некуда переключаться."""
+        manager = ChatManager()
+
+        mock_item1 = MagicMock()
+        mock_item1.chat_id = 1
+        mock_item2 = MagicMock()
+        mock_item2.chat_id = 2
+
+        mock_app.current_chat_id = 2
+        mock_screen.query.return_value = [mock_item1, mock_item2]
+
+        manager.switch_to_next_chat(mock_app, mock_screen)
+
+        mock_screen.switch_to_chat.assert_not_called()
