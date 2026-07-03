@@ -120,3 +120,25 @@ class TestUpdateConfig:
         
         config = config_manager.load_config()
         assert config == config_manager.default_config
+
+class TestConfigFileFormat:
+    """Тесты формата файла конфигурации."""
+
+    def test_json_indentation(self, config_manager):
+        """Проверка форматирования JSON."""
+        config_manager._ensure_config_exists()
+        
+        with open(config_manager.config_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        assert '\n' in content
+        assert '    ' in content
+
+    def test_utf8_encoding(self, config_manager):
+        """Проверка кодировки UTF-8."""
+        config_manager.update_config(last_model="тест-модель")
+        
+        with open(config_manager.config_path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        
+        assert config['last_model'] == "тест-модель"
