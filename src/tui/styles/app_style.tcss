@@ -22,23 +22,18 @@
 #header_right {
     width: 1fr;
     padding: 0 1;
-}
-
-#header_chat_title {
-    text-style: bold;
-}
-
-#header_model {
-    text-style: italic
+    color: $text-muted;
+    text-style: italic;
 }
 
 #name, #header_chat_title {
-    color: $accent;
+    color: $text;
     text-style: bold;
 }
 
 #desc, #header_model {
-    color: $accent-muted;
+    color: $text-muted;
+    text-style: italic;
 }
 
 /* Сообщения пользователя */
@@ -91,6 +86,7 @@ BotMessage BotLoading {
     width: 100%;
     height: 3;
     dock: bottom;
+    border: none;
     content-align: center middle;
     background: $surface-lighten-1;
     margin: 1 2 1 1;
@@ -100,7 +96,7 @@ ChatItem {
     layout: horizontal;
     height: 3;
     width: 100%;
-    border-left: thick $foreground;
+    border-left: thick $primary-lighten-2;
 }
 
 #btn_select {
@@ -178,6 +174,12 @@ ChatItem.active-chat-container {
 
 #info_panel Select {
     margin-bottom: 1;
+}
+
+#model_label {
+    padding-left: 1;
+    color: $accent;
+    text-style: italic;
 }
 
 #model > SelectCurrent {
