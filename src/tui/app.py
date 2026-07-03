@@ -4,6 +4,8 @@ from textual.reactive import reactive
 from core.config import ConfigManager
 from core.engine import G4FEngine
 from core.database import DatabaseManager
+from core.tools import builtins as builtins
+from core.tools.base import get_global_registry
 from tui.tui_core.chat_manager import ChatManager
 from tui.screens.chat import ChatScreen
 from tui.widgets.header import AppHeader
@@ -32,12 +34,13 @@ class G4FreeTUI(App):
         self.config = ConfigManager()
         self.db = DatabaseManager()
         self.chat_manager = ChatManager()
+        self.tool_registry = get_global_registry()
 
         settings = self.config.load_config() or {}
 
         self.model = settings.get("last_model")
         self.provider = settings.get("last_provider")
-        self.current_chat_id = settings.get("current_chat_id")
+        self.current_chat_id = self.resolve_chat_id(settings.get("current_chat_id"))
 
     def compose(self) -> ComposeResult:
         yield AppHeader()
@@ -66,6 +69,17 @@ class G4FreeTUI(App):
                     self.screen.query_one("#chat_input").focus()
                 except Exception:
                     pass
+        
+
+    def resolve_chat_id(self, saved_chat_id: int | None) -> int | None:
+        '''Проверяет, существует ли сохранённый чат в текущей БД; иначе берёт первый доступный'''
+        all_chats = self.db.get_all_chats()
+        valid_ids = {row["id"] for row in all_chats}
+
+        if saved_chat_id in valid_ids:
+            return saved_chat_id
+
+        return all_chats[0]["id"] if all_chats else None
 
     
 
