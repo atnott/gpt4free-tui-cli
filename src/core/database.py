@@ -24,17 +24,16 @@ class DatabaseManager:
                 title TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );''')
-            cursor.execute('''
+            cursor.execute("""
             CREATE TABLE IF NOT EXISTS messages (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                chat_id INTEGER NOT NULL,
-                role TEXT NOT NULL,
-                content TEXT NULL,
-                tool_calls TEXT NULL,
-                tool_call_id TEXT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                chat_id INTEGER,
+                role TEXT,
+                content TEXT,
+                tool_calls TEXT,  -- <--- Добавь это поле сюда
                 FOREIGN KEY (chat_id) REFERENCES chats (id) ON DELETE CASCADE
-            );''')
+            )
+        """)
 
             cursor.execute("SELECT COUNT(*) FROM chats")
             if cursor.fetchone()[0] == 0:
@@ -42,22 +41,24 @@ class DatabaseManager:
                 INSERT INTO chats (title) VALUES ('Основной диалог')
                 ''')
 
-    def save_message(self, chat_id: int, role: str, content: str | None = None, 
-                     tool_calls: str | None = None, tool_call_id: str | None = None) -> None:
-        '''Сохраняет сообщение в базу данных (поддерживает обычные сообщения и данные инструментов)'''
-        with self._get_connection() as conn:
+    def save_message(self, chat_id: int, role: str, content: str | None = None, tool_calls: str | None = None):
+        """Сохраняет сообщение в базу данных, включая вызовы инструментов."""
+        query = """
+            INSERT INTO messages (chat_id, role, content, tool_calls) 
+            VALUES (?, ?, ?, ?)
+        """
+        with sqlite3.connect(self.db_path) as conn: # или как у тебя устроен коннект к БД
             cursor = conn.cursor()
-            cursor.execute('''
-            INSERT OR IGNORE INTO messages (chat_id, role, content, tool_calls, tool_call_id)
-            VALUES (?, ?, ?, ?, ?)''', (chat_id, role, content, tool_calls, tool_call_id))
+            cursor.execute(query, (chat_id, role, content, tool_calls))
+            conn.commit()
 
     def get_chat_history(self, chat_id: int, limit: int = 10) -> list[sqlite3.Row]:
-        '''Возвращает последние N сообщений для контекста вместе с данными инструментов'''
+        '''Возвращает последние N сообщений для контекста'''
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute('''
-            SELECT role, content, tool_calls, tool_call_id FROM (
-                SELECT id, role, content, tool_calls, tool_call_id FROM messages 
+            SELECT role, content FROM (
+                SELECT id, role, content FROM messages 
                 WHERE chat_id = ?
                 ORDER BY id DESC
                 LIMIT ?
@@ -70,7 +71,7 @@ class DatabaseManager:
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute('''
-            SELECT role, content, tool_calls, tool_call_id FROM messages 
+            SELECT role, content FROM messages 
             WHERE chat_id = ?
             ORDER BY id ASC
             ''', (chat_id,))
