@@ -197,3 +197,43 @@ class TestBotMessage:
 
         call_args = msg.bubble.update.call_args[0][0]
         assert isinstance(call_args, RichMarkdown)
+
+class TestChatLog:
+    """Тесты лога чата."""
+
+    def test_init(self):
+        """Инициализация."""
+        log = ChatLog(id="chat_log")
+        assert log.id == "chat_log"
+
+    def test_append_user_message(self):
+        """Добавление сообщения пользователя."""
+        log = ChatLog()
+        log.mount = MagicMock()
+        log.scroll_end = MagicMock()
+
+        with patch("tui.widgets.chat_log.UserMessage") as mock_user_msg:
+            mock_widget = MagicMock()
+            mock_user_msg.return_value = mock_widget
+
+            result = log.append_message("Hello", is_user=True)
+
+        mock_user_msg.assert_called_once_with("Hello")
+        log.mount.assert_called_once_with(mock_widget)
+        log.scroll_end.assert_called_once_with(animate=False)
+        assert result == mock_widget
+
+    def test_append_bot_message(self):
+        """Добавление сообщения бота."""
+        log = ChatLog()
+        log.mount = MagicMock()
+        log.scroll_end = MagicMock()
+
+        with patch("tui.widgets.chat_log.BotMessage") as mock_bot_msg:
+            mock_widget = MagicMock()
+            mock_bot_msg.return_value = mock_widget
+
+            result = log.append_message("Response", is_user=False)
+
+        mock_bot_msg.assert_called_once_with("Response")
+        assert result == mock_widget
