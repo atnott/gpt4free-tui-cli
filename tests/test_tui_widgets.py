@@ -129,3 +129,71 @@ class TestBotLoading:
 
         loading.update.assert_called_once_with("B")
         assert loading.idx == 0
+
+class TestBotMessage:
+    """Тесты сообщения бота."""
+
+    def test_init_with_text(self):
+        """Инициализация с текстом."""
+        msg = BotMessage("Hello")
+        assert msg.raw_text == "Hello"
+
+    def test_init_empty(self):
+        """Инициализация без текста."""
+        msg = BotMessage()
+        assert msg.raw_text == ""
+
+    def test_compose(self):
+        """Компоновка содержит spinner и bubble."""
+        msg = BotMessage()
+        children = list(msg.compose())
+
+        assert len(children) == 2
+        assert isinstance(children[0], BotLoading)
+        assert isinstance(children[1], Static)
+
+    def test_on_mount_with_text(self):
+        """При монтировании с текстом скрывается спиннер."""
+        msg = BotMessage("Response")
+        msg.spinner = MagicMock()
+        msg.bubble = MagicMock()
+
+        msg.on_mount()
+
+        assert msg.spinner.display is False
+        assert msg.bubble.display is True
+
+    def test_on_mount_without_text(self):
+        """При монтировании без текста показывается спиннер."""
+        msg = BotMessage()
+        msg.spinner = MagicMock()
+        msg.bubble = MagicMock()
+
+        msg.on_mount()
+
+        assert msg.bubble.display is False
+
+    def test_update_content(self):
+        """Обновление содержимого."""
+        msg = BotMessage()
+        msg.spinner = MagicMock()
+        msg.spinner.display = True
+        msg.bubble = MagicMock()
+
+        msg.update_content("New text")
+
+        assert msg.spinner.display is False
+        assert msg.bubble.display is True
+        assert msg.raw_text == "New text"
+        msg.bubble.update.assert_called_once()
+
+    def test_update_content_with_markdown(self):
+        """Обновление с Markdown."""
+        msg = BotMessage()
+        msg.spinner = MagicMock()
+        msg.bubble = MagicMock()
+
+        msg.update_content("**bold**")
+
+        call_args = msg.bubble.update.call_args[0][0]
+        assert isinstance(call_args, RichMarkdown)
