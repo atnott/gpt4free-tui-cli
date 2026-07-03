@@ -21,7 +21,7 @@ class ChatScreen(Screen):
                 yield ChatInput(id="chat_input")
 
             yield ChoosePanel(id="info_panel")
-            yield Footer(id="footer")
+        yield Footer(id="footer")
 
     def on_mount(self) -> None:
         """Загружает историю последнего активного чата."""
