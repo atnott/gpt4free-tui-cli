@@ -109,3 +109,59 @@ class TestGetChatResponse:
 
         result = await engine.get_chat_response(model="gpt-4o", message="Test")
         assert result == ""
+
+class TestGetAvailableProviders:
+    """Тесты получения списка провайдеров."""
+
+    def test_get_available_providers_filters_working(self, engine):
+        """Фильтрация только работающих провайдеров."""
+        mock_provider1 = MagicMock()
+        mock_provider1.working = True
+        mock_provider1.models = ["gpt-4o", "claude-3"]
+        mock_provider1.__name__ = "ProviderA"
+
+        mock_provider2 = MagicMock()
+        mock_provider2.working = False
+        mock_provider2.models = ["gpt-4o"]
+        mock_provider2.__name__ = "ProviderB"
+
+        mock_provider3 = MagicMock()
+        mock_provider3.working = True
+        mock_provider3.models = []
+        mock_provider3.__name__ = "ProviderC"
+
+        with patch("core.engine.__providers__", [mock_provider1, mock_provider2, mock_provider3]):
+            providers = engine.get_available_providers()
+
+            assert len(providers) == 1
+            assert providers[0].name == "ProviderA"
+            assert providers[0].is_working is True
+            assert providers[0].supported_models == ["gpt-4o", "claude-3"]
+
+    def test_get_available_providers_no_models(self, engine):
+        """Провайдеры без моделей исключаются."""
+        mock_provider = MagicMock()
+        mock_provider.working = True
+        mock_provider.models = []
+        mock_provider.__name__ = "EmptyProvider"
+
+        with patch("core.engine.__providers__", [mock_provider]):
+            providers = engine.get_available_providers()
+            assert len(providers) == 0
+
+    def test_get_available_providers_models_conversion(self, engine):
+        """Проверка конвертации моделей в строки."""
+        mock_provider = MagicMock()
+        mock_provider.working = True
+        mock_provider.models = [MagicMock(__str__=lambda self: "model-1")]
+        mock_provider.__name__ = "TestProvider"
+
+        with patch("core.engine.__providers__", [mock_provider]):
+            providers = engine.get_available_providers()
+            assert providers[0].supported_models == ["model-1"]
+
+    def test_get_available_providers_empty_list(self, engine):
+        """Пустой список провайдеров."""
+        with patch("core.engine.__providers__", []):
+            providers = engine.get_available_providers()
+            assert providers == []
