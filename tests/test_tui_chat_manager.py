@@ -4,31 +4,6 @@ from unittest.mock import MagicMock, patch
 from tui.tui_core.chat_manager import ChatManager
 from tui.widgets.chat_item import ChatItem
 
-@pytest.fixture
-def mock_app():
-    app = MagicMock()
-    app.model = "gpt-4o"
-    app.provider = None
-    app.current_chat_id = 1
-    app.current_chat_title = ""
-    app.config = MagicMock()
-    app.db = MagicMock()
-    app.engine = MagicMock()
-    return app
-
-@pytest.fixture
-def mock_screen():
-    screen = MagicMock()
-    screen.query = MagicMock(return_value=[])
-    screen.query_one = MagicMock()
-    return screen
-
-import pytest
-from unittest.mock import MagicMock, patch
-
-from tui.tui_core.chat_manager import ChatManager
-from tui.widgets.chat_item import ChatItem
-
 
 class TestChatManagerInitialization:
     """Тесты инициализации."""
