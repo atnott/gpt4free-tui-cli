@@ -396,3 +396,62 @@ class TestChatItem:
         item.on_input_submitted(event)
 
         item.app.chat_manager.rename_chat.assert_not_called()
+
+class TestChatSidebar:
+    """Тесты боковой панели чатов."""
+
+    def test_compose(self):
+        """Компоновка содержит кнопку и список."""
+        sidebar = ChatSidebar()
+        children = list(sidebar.compose())
+
+        assert len(children) == 2
+
+    def test_on_mount_loads_chats(self):
+        """Загрузка чатов при монтировании."""
+        sidebar = ChatSidebar()
+        sidebar.app = MagicMock()
+        sidebar.app.current_chat_id = 1
+        sidebar.app.db.get_all_chats.return_value = [
+            {"id": 1, "title": "Chat 1"},
+            {"id": 2, "title": "Chat 2"},
+        ]
+
+        mock_chat_list = MagicMock()
+        sidebar.query_one = MagicMock(return_value=mock_chat_list)
+
+        with patch("tui.widgets.chats_sidebar.ChatItem") as mock_item_class:
+            mock_items = [MagicMock(), MagicMock()]
+            mock_item_class.side_effect = mock_items
+
+            sidebar.on_mount()
+
+        assert mock_item_class.call_count == 2
+        mock_chat_list.mount.assert_called()
+
+    def test_on_button_pressed_create_chat(self):
+        """Создание чата по кнопке."""
+        sidebar = ChatSidebar()
+        sidebar.app = MagicMock()
+        sidebar.app.db.create_chat.return_value = 5
+        sidebar.screen = MagicMock()
+
+        mock_chat_list = MagicMock()
+        sidebar.query_one = MagicMock(return_value=mock_chat_list)
+
+        mock_button = MagicMock()
+        mock_button.id = "btn_create_chat"
+
+        event = MagicMock()
+        event.button = mock_button
+
+        with patch("tui.widgets.chats_sidebar.ChatItem") as mock_item_class:
+            mock_item = MagicMock()
+            mock_item_class.return_value = mock_item
+
+            sidebar.on_button_pressed(event)
+
+        sidebar.app.db.create_chat.assert_called_once_with("New chat")
+        mock_chat_list.mount.assert_called_once_with(mock_item)
+        mock_item.scroll_visible.assert_called_once()
+        sidebar.screen.switch_to_chat.assert_called_once_with(5)
