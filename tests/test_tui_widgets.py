@@ -90,3 +90,42 @@ class TestUserMessage:
         assert len(children) == 1
         assert isinstance(children[0], Static)
         assert children[0].renderable == "Test message"
+
+class TestBotLoading:
+    """Тесты индикатора загрузки."""
+
+    def test_on_mount_sets_frames(self):
+        """Установка фреймов при монтировании."""
+        loading = BotLoading()
+        loading.set_interval = MagicMock()
+        loading.update = MagicMock()
+
+        loading.on_mount()
+
+        assert len(loading.frames) == 10
+        assert loading.idx == 0
+        loading.set_interval.assert_called_once_with(0.08, loading.update_spinner)
+
+    def test_update_spinner(self):
+        """Обновление спиннера."""
+        loading = BotLoading()
+        loading.frames = ["A", "B", "C"]
+        loading.idx = 0
+        loading.update = MagicMock()
+
+        loading.update_spinner()
+
+        loading.update.assert_called_once_with("A")
+        assert loading.idx == 1
+
+    def test_update_spinner_wraps(self):
+        """Циклическое обновление спиннера."""
+        loading = BotLoading()
+        loading.frames = ["A", "B"]
+        loading.idx = 1
+        loading.update = MagicMock()
+
+        loading.update_spinner()
+
+        loading.update.assert_called_once_with("B")
+        assert loading.idx == 0
