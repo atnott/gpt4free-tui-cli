@@ -126,3 +126,42 @@ class TestG4FreeTUIMount:
             app = G4FreeTUI()
             app.on_mount()
             mock_push.assert_called_once()
+
+class TestG4FreeTUIUnmount:
+    """Тесты on_unmount — сохранение конфига."""
+
+    @patch("tui.app.G4FEngine")
+    @patch("tui.app.ConfigManager")
+    @patch("tui.app.DatabaseManager")
+    @patch("tui.app.ChatManager")
+    def test_on_unmount_saves_config(self, mock_chat_mgr, mock_db, mock_config, mock_engine):
+        """Сохранение конфига при выходе."""
+        mock_config_instance = MagicMock()
+        mock_config.return_value = mock_config_instance
+
+        with patch.object(G4FreeTUI, "push_screen"):
+            app = G4FreeTUI()
+            app.model = "gpt-4o-mini"
+            app.provider = "OpenaiChat"
+            app.current_chat_id = 3
+            app.on_unmount()
+
+        mock_config_instance.update_config.assert_called_once_with(
+            last_model="gpt-4o-mini",
+            last_provider="OpenaiChat",
+            current_chat_id=3
+        )
+
+    @patch("tui.app.G4FEngine")
+    @patch("tui.app.ConfigManager")
+    @patch("tui.app.DatabaseManager")
+    @patch("tui.app.ChatManager")
+    def test_on_unmount_handles_error(self, mock_chat_mgr, mock_db, mock_config, mock_engine):
+        """Обработка ошибки при сохранении конфига."""
+        mock_config_instance = MagicMock()
+        mock_config_instance.update_config.side_effect = Exception("Disk full")
+        mock_config.return_value = mock_config_instance
+
+        with patch.object(G4FreeTUI, "push_screen"):
+            app = G4FreeTUI()
+            app.on_unmount()
