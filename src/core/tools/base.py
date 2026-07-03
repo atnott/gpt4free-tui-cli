@@ -127,6 +127,14 @@ class ChatResult:
     fallback_to_no_tools: bool = False
     warning: str | None = None
 
+@dataclass
+class StreamEvent:
+    type: str
+    text: str = ""
+    tool_name: str | None = None
+    tool_args: dict | None = None
+    tool_result: str | None = None
+
 def tool(
         name: str | None = None,
         description: str | None = None,
