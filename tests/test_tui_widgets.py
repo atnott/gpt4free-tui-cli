@@ -582,3 +582,75 @@ class TestChoosePanel:
         panel.on_option_list_option_selected(mock_event)
 
         assert panel.app.provider == "Bing"
+
+class TestChatInput:
+    """Тесты поля ввода."""
+
+    def test_init(self):
+        """Инициализация с placeholder."""
+        inp = ChatInput(id="chat_input")
+        assert inp.id == "chat_input"
+        assert "Input your request" in inp.placeholder
+
+    @pytest.mark.asyncio
+    async def test_on_input_submitted_empty(self):
+        """Пустой ввод — игнорируется."""
+        inp = ChatInput()
+        inp.value = "   "
+
+        mock_event = MagicMock()
+        mock_event.value = "   "
+
+        await inp.on_input_submitted(mock_event)
+
+    @pytest.mark.asyncio
+    async def test_on_input_submitted_success(self):
+        """Успешная отправка сообщения."""
+        inp = ChatInput()
+        inp.value = "Hello"
+        inp.screen = MagicMock()
+
+        mock_chat_log = MagicMock()
+        inp.screen.query_one.return_value = mock_chat_log
+
+        mock_app = MagicMock()
+        mock_app.model = "gpt-4o"
+        mock_app.provider = None
+        inp.app = mock_app
+
+        async def mock_stream(*args, **kwargs):
+            yield "Hello"
+            yield " world"
+
+        mock_app.engine.get_chat_stream.return_value = mock_stream()
+
+        await inp.on_input_submitted(MagicMock(value="Hello"))
+
+        assert inp.value == ""
+        mock_chat_log.append_message.assert_any_call("Hello", is_user=True)
+        mock_chat_log.append_message.assert_any_call("", is_user=False)
+
+    @pytest.mark.asyncio
+    async def test_on_input_submitted_error(self):
+        """Обработка ошибки движка."""
+        inp = ChatInput()
+        inp.value = "Test"
+        inp.screen = MagicMock()
+
+        mock_chat_log = MagicMock()
+        inp.screen.query_one.return_value = mock_chat_log
+
+        mock_app = MagicMock()
+        mock_app.model = "gpt-4o"
+        inp.app = mock_app
+
+        async def mock_stream(*args, **kwargs):
+            raise Exception("Engine error")
+            yield ""
+
+        mock_app.engine.get_chat_stream.return_value = mock_stream()
+
+        await inp.on_input_submitted(MagicMock(value="Test"))
+
+        bot_msg = mock_chat_log.append_message.return_value
+        assert bot_msg.update_content.called
