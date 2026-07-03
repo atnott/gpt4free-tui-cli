@@ -5,12 +5,12 @@ from tui.widgets.bot_loading import BotLoading
 
 class BotMessage(Vertical):
     """Контейнер для ответа нейросети"""
-    def __init__(self, text: str = "", id = None):
+    def __init__(self, text: str | None = "", id = None):
         super().__init__(id = id)
-        self.raw_text = text
+        self.raw_text = text if text is not None else ""
         self.bubble = Static(classes="bubble")
         self.spinner = BotLoading()
-        self.loading_active = True 
+        self.loading_active = text is not None
 
     def compose(self):
         yield self.spinner
