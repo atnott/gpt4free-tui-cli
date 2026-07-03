@@ -29,7 +29,9 @@ class DatabaseManager:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 chat_id INTEGER NOT NULL,
                 role TEXT NOT NULL,
-                content TEXT NOT NULL,
+                content TEXT NULL,
+                tool_calls TEXT NULL,
+                tool_call_id TEXT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (chat_id) REFERENCES chats (id) ON DELETE CASCADE
             );''')
@@ -40,21 +42,22 @@ class DatabaseManager:
                 INSERT INTO chats (title) VALUES ('Основной диалог')
                 ''')
 
-    def save_message(self, chat_id: int, role: str, content: str) -> None:
-        '''Сохраняет сообщение в базу данных'''
+    def save_message(self, chat_id: int, role: str, content: str | None = None, 
+                     tool_calls: str | None = None, tool_call_id: str | None = None) -> None:
+        '''Сохраняет сообщение в базу данных (поддерживает обычные сообщения и данные инструментов)'''
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute('''
-            INSERT OR IGNORE INTO messages (chat_id, role, content)
-            VALUES (?, ?, ?)''', (chat_id, role, content))
+            INSERT OR IGNORE INTO messages (chat_id, role, content, tool_calls, tool_call_id)
+            VALUES (?, ?, ?, ?, ?)''', (chat_id, role, content, tool_calls, tool_call_id))
 
     def get_chat_history(self, chat_id: int, limit: int = 10) -> list[sqlite3.Row]:
-        '''Возвращает последние N сообщений для контекста'''
+        '''Возвращает последние N сообщений для контекста вместе с данными инструментов'''
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute('''
-            SELECT role, content FROM (
-                SELECT id, role, content FROM messages 
+            SELECT role, content, tool_calls, tool_call_id FROM (
+                SELECT id, role, content, tool_calls, tool_call_id FROM messages 
                 WHERE chat_id = ?
                 ORDER BY id DESC
                 LIMIT ?
@@ -67,7 +70,7 @@ class DatabaseManager:
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute('''
-            SELECT role, content FROM messages 
+            SELECT role, content, tool_calls, tool_call_id FROM messages 
             WHERE chat_id = ?
             ORDER BY id ASC
             ''', (chat_id,))
