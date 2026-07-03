@@ -208,7 +208,7 @@ class TestGetChatStream:
             yield chunk1
             yield chunk2
 
-        mock_g4f_client.chat.completions.create.return_value = async_generator()
+        mock_g4f_client.chat.completions.create = MagicMock(return_value=async_generator())
 
         result = []
         async for chunk in engine.get_chat_stream(model="gpt-4o", message="Test"):
@@ -225,7 +225,7 @@ class TestGetChatStream:
         async def async_generator():
             yield chunk
 
-        mock_g4f_client.chat.completions.create.return_value = async_generator()
+        mock_g4f_client.chat.completions.create = MagicMock(return_value=async_generator())
 
         messages = [{"role": "user", "content": "Вопрос"}]
         result = []
@@ -248,7 +248,7 @@ class TestGetChatStream:
             yield chunk1
             yield chunk2
 
-        mock_g4f_client.chat.completions.create.return_value = async_generator()
+        mock_g4f_client.chat.completions.create = MagicMock(return_value=async_generator())
 
         result = []
         async for chunk in engine.get_chat_stream(model="gpt-4o", message="Test"):
@@ -260,19 +260,17 @@ class TestGetChatStream:
     async def test_get_chat_stream_attribute_error(self, engine, mock_g4f_client):
         """Обработка AttributeError (нет choices/delta)."""
         chunk = MagicMock()
-        # choices отсутствует, вызовет AttributeError
         del chunk.choices
 
         async def async_generator():
             yield chunk
 
-        mock_g4f_client.chat.completions.create.return_value = async_generator()
+        mock_g4f_client.chat.completions.create = MagicMock(return_value=async_generator())
 
         result = []
         async for chunk in engine.get_chat_stream(model="gpt-4o", message="Test"):
             result.append(chunk)
 
-        # Должен вернуть str(chunk) при AttributeError
         assert len(result) == 1
 
     @pytest.mark.asyncio
@@ -284,7 +282,7 @@ class TestGetChatStream:
         async def async_generator():
             yield chunk
 
-        mock_g4f_client.chat.completions.create.return_value = async_generator()
+        mock_g4f_client.chat.completions.create = MagicMock(return_value=async_generator())
 
         result = []
         async for chunk in engine.get_chat_stream(
