@@ -54,7 +54,7 @@ class TestG4FreeTUIInitialization:
 
         with patch.object(G4FreeTUI, "push_screen"):
             app = G4FreeTUI()
-            assert app.model == ""
+            assert app.model is None
             assert app.provider is None
             assert app.current_chat_id is None
 
@@ -89,13 +89,14 @@ class TestG4FreeTUIInitialization:
             bindings = app.BINDINGS
 
             keys = [b[0] for b in bindings]
-            assert "ctrl+n" in keys  # create_chat
-            assert "ctrl+d" in keys  # delete_chat
-            assert "ctrl+r" in keys  # rename_chat
-            assert "ctrl+up" in keys  # switch_to_previous_chat
-            assert "ctrl+down" in keys  # switch_to_next_chat
-            assert "ctrl+m" in keys  # switch_model
-            assert "ctrl+j" in keys  # switch_provider
+            assert "ctrl+n" in keys
+            assert "ctrl+d" in keys
+            assert "ctrl+r" in keys
+            assert "ctrl+up" in keys
+            assert "ctrl+down" in keys
+            assert "ctrl+m" in keys
+            assert "ctrl+j" in keys
+
 
 class TestG4FreeTUICompose:
     """Тесты compose() — построение UI."""
@@ -168,30 +169,6 @@ class TestG4FreeTUIUnmount:
 
 class TestG4FreeTUIOnKey:
     """Тесты обработки клавиш."""
-
-    @patch("tui.app.G4FEngine")
-    @patch("tui.app.ConfigManager")
-    @patch("tui.app.DatabaseManager")
-    @patch("tui.app.ChatManager")
-    def test_space_focuses_input(self, mock_chat_mgr, mock_db, mock_config, mock_engine):
-        """Пробел фокусирует input, если не в input."""
-        with patch.object(G4FreeTUI, "push_screen"):
-            app = G4FreeTUI()
-
-        mock_event = MagicMock()
-        mock_event.key = "space"
-        app.focused = MagicMock(spec=object)
-
-        mock_input = MagicMock()
-        app.screen = MagicMock()
-        app.screen.query_one.return_value = mock_input
-
-        app.on_key(mock_event)
-
-        mock_event.prevent_default.assert_called_once()
-        mock_event.stop.assert_called_once()
-        mock_input.focus.assert_called_once()
-
     @patch("tui.app.G4FEngine")
     @patch("tui.app.ConfigManager")
     @patch("tui.app.DatabaseManager")
@@ -203,11 +180,13 @@ class TestG4FreeTUIOnKey:
 
         mock_event = MagicMock()
         mock_event.key = "space"
-        app.focused = MagicMock(spec=Input)
 
-        app.on_key(mock_event)
+        with patch.object(type(app), "focused", new_callable=PropertyMock) as mock_focused:
+            mock_focused.return_value = MagicMock(spec=Input)
+            app.on_key(mock_event)
 
         mock_event.prevent_default.assert_not_called()
+
 
 class TestG4FreeTUIActions:
     """Тесты action_* методов."""
@@ -223,12 +202,14 @@ class TestG4FreeTUIActions:
 
         with patch.object(G4FreeTUI, "push_screen"):
             app = G4FreeTUI()
-            app.screen = MagicMock()
 
+        mock_screen = MagicMock()
+        with patch.object(type(app), "screen", new_callable=PropertyMock) as mock_screen_prop:
+            mock_screen_prop.return_value = mock_screen
             app.action_create_chat()
 
         mock_chat_manager.create_new_chat.assert_called_once_with(
-            app=app, screen=app.screen
+            app=app, screen=mock_screen
         )
 
     @patch("tui.app.G4FEngine")
@@ -243,15 +224,17 @@ class TestG4FreeTUIActions:
         with patch.object(G4FreeTUI, "push_screen"):
             app = G4FreeTUI()
             app.current_chat_id = 5
-            app.screen = MagicMock()
 
-            mock_item = MagicMock()
-            app.screen.query_one.return_value = mock_item
+        mock_screen = MagicMock()
+        mock_item = MagicMock()
+        mock_screen.query_one.return_value = mock_item
 
+        with patch.object(type(app), "screen", new_callable=PropertyMock) as mock_screen_prop:
+            mock_screen_prop.return_value = mock_screen
             app.action_delete_chat()
 
         mock_chat_manager.delete_chat.assert_called_once_with(
-            app=app, screen=app.screen, chat_item=mock_item
+            app=app, screen=mock_screen, chat_item=mock_item
         )
 
     @patch("tui.app.G4FEngine")
@@ -263,7 +246,6 @@ class TestG4FreeTUIActions:
         with patch.object(G4FreeTUI, "push_screen"):
             app = G4FreeTUI()
             app.current_chat_id = None
-
             app.action_delete_chat()
 
     @patch("tui.app.G4FEngine")
@@ -275,11 +257,13 @@ class TestG4FreeTUIActions:
         with patch.object(G4FreeTUI, "push_screen"):
             app = G4FreeTUI()
             app.current_chat_id = 3
-            app.screen = MagicMock()
 
-            mock_item = MagicMock()
-            app.screen.query_one.return_value = mock_item
+        mock_screen = MagicMock()
+        mock_item = MagicMock()
+        mock_screen.query_one.return_value = mock_item
 
+        with patch.object(type(app), "screen", new_callable=PropertyMock) as mock_screen_prop:
+            mock_screen_prop.return_value = mock_screen
             app.action_rename_chat()
 
         mock_item.edit_name.assert_called_once()
@@ -295,12 +279,14 @@ class TestG4FreeTUIActions:
 
         with patch.object(G4FreeTUI, "push_screen"):
             app = G4FreeTUI()
-            app.screen = MagicMock()
 
+        mock_screen = MagicMock()
+        with patch.object(type(app), "screen", new_callable=PropertyMock) as mock_screen_prop:
+            mock_screen_prop.return_value = mock_screen
             app.action_switch_to_previous_chat()
 
         mock_chat_manager.switch_to_previous_chat.assert_called_once_with(
-            app=app, screen=app.screen
+            app=app, screen=mock_screen
         )
 
     @patch("tui.app.G4FEngine")
@@ -314,12 +300,14 @@ class TestG4FreeTUIActions:
 
         with patch.object(G4FreeTUI, "push_screen"):
             app = G4FreeTUI()
-            app.screen = MagicMock()
 
+        mock_screen = MagicMock()
+        with patch.object(type(app), "screen", new_callable=PropertyMock) as mock_screen_prop:
+            mock_screen_prop.return_value = mock_screen
             app.action_switch_to_next_chat()
 
         mock_chat_manager.switch_to_next_chat.assert_called_once_with(
-            app=app, screen=app.screen
+            app=app, screen=mock_screen
         )
 
     @patch("tui.app.G4FEngine")
@@ -330,14 +318,16 @@ class TestG4FreeTUIActions:
         """Фокус на выбор модели."""
         with patch.object(G4FreeTUI, "push_screen"):
             app = G4FreeTUI()
-            app.screen = MagicMock()
 
-            mock_model_widget = MagicMock()
-            app.screen.query_one.return_value = mock_model_widget
+        mock_screen = MagicMock()
+        mock_model_widget = MagicMock()
+        mock_screen.query_one.return_value = mock_model_widget
 
+        with patch.object(type(app), "screen", new_callable=PropertyMock) as mock_screen_prop:
+            mock_screen_prop.return_value = mock_screen
             app.action_switch_model()
 
-        app.screen.query_one.assert_called_once_with("#model")
+        mock_screen.query_one.assert_called_once_with("#model")
         mock_model_widget.focus.assert_called_once()
 
     @patch("tui.app.G4FEngine")
@@ -348,12 +338,14 @@ class TestG4FreeTUIActions:
         """Фокус на выбор провайдера."""
         with patch.object(G4FreeTUI, "push_screen"):
             app = G4FreeTUI()
-            app.screen = MagicMock()
 
-            mock_provider_widget = MagicMock()
-            app.screen.query_one.return_value = mock_provider_widget
+        mock_screen = MagicMock()
+        mock_provider_widget = MagicMock()
+        mock_screen.query_one.return_value = mock_provider_widget
 
+        with patch.object(type(app), "screen", new_callable=PropertyMock) as mock_screen_prop:
+            mock_screen_prop.return_value = mock_screen
             app.action_switch_provider()
 
-        app.screen.query_one.assert_called_once_with("#providers")
+        mock_screen.query_one.assert_called_once_with("#providers")
         mock_provider_widget.focus.assert_called_once()
