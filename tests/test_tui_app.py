@@ -96,3 +96,33 @@ class TestG4FreeTUIInitialization:
             assert "ctrl+down" in keys  # switch_to_next_chat
             assert "ctrl+m" in keys  # switch_model
             assert "ctrl+j" in keys  # switch_provider
+
+class TestG4FreeTUICompose:
+    """Тесты compose() — построение UI."""
+
+    @patch("tui.app.G4FEngine")
+    @patch("tui.app.ConfigManager")
+    @patch("tui.app.DatabaseManager")
+    @patch("tui.app.ChatManager")
+    def test_compose_yields_header(self, mock_chat_mgr, mock_db, mock_config, mock_engine):
+        """Compose должен содержать AppHeader."""
+        with patch.object(G4FreeTUI, "push_screen"):
+            app = G4FreeTUI()
+
+        with patch("tui.app.AppHeader"):
+            list(app.compose())
+
+
+class TestG4FreeTUIMount:
+    """Тесты on_mount."""
+
+    @patch("tui.app.G4FEngine")
+    @patch("tui.app.ConfigManager")
+    @patch("tui.app.DatabaseManager")
+    @patch("tui.app.ChatManager")
+    def test_on_mount_pushes_chat_screen(self, mock_chat_mgr, mock_db, mock_config, mock_engine):
+        """При монтировании открывается ChatScreen."""
+        with patch.object(G4FreeTUI, "push_screen") as mock_push:
+            app = G4FreeTUI()
+            app.on_mount()
+            mock_push.assert_called_once()
