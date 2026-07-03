@@ -326,3 +326,94 @@ class TestSelectChatCommand:
         assert "Ошибка" in result.output
         assert "не существует" in result.output
         mock_config.update_config.assert_not_called()
+
+class TestStreamResponse:
+    """Тесты функции stream_response."""
+
+    @pytest.mark.asyncio
+    async def test_stream_response_success(self):
+        """Успешный стриминг."""
+        mock_engine = MagicMock()
+        mock_engine.get_chat_stream = AsyncMock(return_value=async_generator(["Привет", " мир"]))
+        
+        mock_config = MagicMock()
+        mock_db = MagicMock()
+        
+        with patch("cli.engine", mock_engine), \
+             patch("cli.config", mock_config), \
+             patch("cli.db", mock_db), \
+             patch("cli.console"):
+            
+            await stream_response(
+                model="gpt-4o",
+                message="Test",
+                chat_id=1
+            )
+            
+            mock_config.update_config.assert_called_once_with(
+                last_model="gpt-4o",
+                last_provider=None
+            )
+            mock_db.save_message.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_stream_response_with_provider(self):
+        """Стриминг с провайдером."""
+        mock_engine = MagicMock()
+        mock_engine.get_chat_stream = AsyncMock(return_value=async_generator(["OK"]))
+        
+        mock_config = MagicMock()
+        
+        with patch("cli.engine", mock_engine), \
+             patch("cli.config", mock_config), \
+             patch("cli.db"), \
+             patch("cli.console"):
+            
+            await stream_response(
+                model="gpt-4o",
+                provider="Bing",
+                chat_id=1
+            )
+            
+            mock_config.update_config.assert_called_once_with(
+                last_model="gpt-4o",
+                last_provider="Bing"
+            )
+
+    @pytest.mark.asyncio
+    async def test_stream_response_error(self):
+        """Обработка ошибки при стриминге."""
+        mock_engine = MagicMock()
+        mock_engine.get_chat_stream = AsyncMock(side_effect=Exception("API Error"))
+        
+        with patch("cli.engine", mock_engine), \
+             patch("cli.config"), \
+             patch("cli.db"), \
+             patch("cli.typer.echo") as mock_echo:
+            
+            await stream_response(model="gpt-4o", chat_id=1)
+            
+            mock_echo.assert_called_once()
+            assert "Ошибка генерации" in str(mock_echo.call_args)
+
+    @pytest.mark.asyncio
+    async def test_stream_response_saves_empty_text(self):
+        """Не сохраняет пустой ответ."""
+        mock_engine = MagicMock()
+        mock_engine.get_chat_stream = AsyncMock(return_value=async_generator([""]))
+        
+        mock_db = MagicMock()
+        
+        with patch("cli.engine", mock_engine), \
+             patch("cli.config"), \
+             patch("cli.db", mock_db), \
+             patch("cli.console"):
+            
+            await stream_response(model="gpt-4o", chat_id=1)
+            
+            mock_db.save_message.assert_not_called()
+
+
+async def async_generator(items):
+    for item in items:
+        yield item
