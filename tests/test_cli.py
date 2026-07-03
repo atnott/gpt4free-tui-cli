@@ -291,3 +291,38 @@ class TestNewChatCommand:
         
         assert result.exit_code == 0
         mock_db.create_chat.assert_called_once_with(title="Название по умолчанию")
+
+class TestSelectChatCommand:
+    """Тесты команды select-chat."""
+
+    @patch("cli.db")
+    @patch("cli.config")
+    @patch("cli.console")
+    def test_select_existing_chat(self, mock_console, mock_config, mock_db):
+        """Выбор существующего чата."""
+        mock_db.get_all_chats.return_value = [
+            {'id': 1, 'title': 'Chat 1'},
+            {'id': 2, 'title': 'Chat 2'},
+        ]
+        
+        result = runner.invoke(app, ["select-chat", "2"])
+        
+        assert result.exit_code == 0
+        mock_config.update_config.assert_called_once_with(current_chat_id=2)
+        assert "Успешно переключено" in result.output
+
+    @patch("cli.db")
+    @patch("cli.config")
+    @patch("cli.console")
+    def test_select_nonexistent_chat(self, mock_console, mock_config, mock_db):
+        """Выбор несуществующего чата."""
+        mock_db.get_all_chats.return_value = [
+            {'id': 1, 'title': 'Chat 1'},
+        ]
+        
+        result = runner.invoke(app, ["select-chat", "999"])
+        
+        assert result.exit_code == 0
+        assert "Ошибка" in result.output
+        assert "не существует" in result.output
+        mock_config.update_config.assert_not_called()
