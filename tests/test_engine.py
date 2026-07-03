@@ -165,3 +165,30 @@ class TestGetAvailableProviders:
         with patch("core.engine.__providers__", []):
             providers = engine.get_available_providers()
             assert providers == []
+
+class TestGetAllModels:
+    """Тесты получения списка всех моделей."""
+
+    def test_get_all_models_unique_and_sorted(self, engine):
+        """Проверка уникальности и сортировки моделей."""
+        mock_provider1 = MagicMock()
+        mock_provider1.working = True
+        mock_provider1.models = ["gpt-4o", "claude-3"]
+        mock_provider1.__name__ = "P1"
+
+        mock_provider2 = MagicMock()
+        mock_provider2.working = True
+        mock_provider2.models = ["gpt-4o", "llama-3"]
+        mock_provider2.__name__ = "P2"
+
+        with patch("core.engine.__providers__", [mock_provider1, mock_provider2]):
+            models = engine.get_all_models()
+
+            assert models == ["claude-3", "gpt-4o", "llama-3"]
+            assert len(models) == 3  # уникальные
+
+    def test_get_all_models_empty(self, engine):
+        """Пустой список моделей."""
+        with patch("core.engine.__providers__", []):
+            models = engine.get_all_models()
+            assert models == []
