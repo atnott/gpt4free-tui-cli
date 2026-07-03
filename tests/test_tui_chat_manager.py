@@ -4,6 +4,31 @@ from unittest.mock import MagicMock, patch
 from tui.tui_core.chat_manager import ChatManager
 from tui.widgets.chat_item import ChatItem
 
+@pytest.fixture
+def mock_app():
+    app = MagicMock()
+    app.model = "gpt-4o"
+    app.provider = None
+    app.current_chat_id = 1
+    app.current_chat_title = ""
+    app.config = MagicMock()
+    app.db = MagicMock()
+    app.engine = MagicMock()
+    return app
+
+@pytest.fixture
+def mock_screen():
+    screen = MagicMock()
+    screen.query = MagicMock(return_value=[])
+    screen.query_one = MagicMock()
+    return screen
+
+import pytest
+from unittest.mock import MagicMock, patch
+
+from tui.tui_core.chat_manager import ChatManager
+from tui.widgets.chat_item import ChatItem
+
 
 class TestChatManagerInitialization:
     """Тесты инициализации."""
@@ -119,13 +144,14 @@ class TestRenameChat:
         mock_item.chat_title = "Old Name"
 
         mock_btn = MagicMock()
+        mock_btn.label = "Old Name"
         mock_item.query_one.return_value = mock_btn
 
         manager.rename_chat(mock_app, mock_item, "New Name")
 
         assert mock_item.chat_title == "New Name"
         mock_app.db.update_chat_title.assert_called_once_with(5, "New Name")
-        mock_btn.label.assert_called_once_with("New Name")
+        assert mock_btn.label == "New Name"
 
     def test_rename_chat_current_updates_app_title(self, mock_app, mock_screen):
         """Переименование текущего чата обновляет заголовок приложения."""
@@ -136,6 +162,7 @@ class TestRenameChat:
         mock_app.current_chat_id = 3
 
         mock_btn = MagicMock()
+        mock_btn.label = "Old"
         mock_item.query_one.return_value = mock_btn
 
         manager.rename_chat(mock_app, mock_item, "Updated")
