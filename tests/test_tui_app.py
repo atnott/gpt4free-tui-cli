@@ -165,3 +165,46 @@ class TestG4FreeTUIUnmount:
         with patch.object(G4FreeTUI, "push_screen"):
             app = G4FreeTUI()
             app.on_unmount()
+
+class TestG4FreeTUIOnKey:
+    """Тесты обработки клавиш."""
+
+    @patch("tui.app.G4FEngine")
+    @patch("tui.app.ConfigManager")
+    @patch("tui.app.DatabaseManager")
+    @patch("tui.app.ChatManager")
+    def test_space_focuses_input(self, mock_chat_mgr, mock_db, mock_config, mock_engine):
+        """Пробел фокусирует input, если не в input."""
+        with patch.object(G4FreeTUI, "push_screen"):
+            app = G4FreeTUI()
+
+        mock_event = MagicMock()
+        mock_event.key = "space"
+        app.focused = MagicMock(spec=object)
+
+        mock_input = MagicMock()
+        app.screen = MagicMock()
+        app.screen.query_one.return_value = mock_input
+
+        app.on_key(mock_event)
+
+        mock_event.prevent_default.assert_called_once()
+        mock_event.stop.assert_called_once()
+        mock_input.focus.assert_called_once()
+
+    @patch("tui.app.G4FEngine")
+    @patch("tui.app.ConfigManager")
+    @patch("tui.app.DatabaseManager")
+    @patch("tui.app.ChatManager")
+    def test_space_in_input_no_action(self, mock_chat_mgr, mock_db, mock_config, mock_engine):
+        """Пробел в input не вызывает prevent_default."""
+        with patch.object(G4FreeTUI, "push_screen"):
+            app = G4FreeTUI()
+
+        mock_event = MagicMock()
+        mock_event.key = "space"
+        app.focused = MagicMock(spec=Input)
+
+        app.on_key(mock_event)
+
+        mock_event.prevent_default.assert_not_called()
