@@ -9,9 +9,11 @@ from core.tools.base import get_global_registry
 from tui.tui_core.chat_manager import ChatManager
 from tui.screens.chat import ChatScreen
 from tui.widgets.header import AppHeader
+from pathlib import Path
 
 class G4FreeTUI(App):
-    CSS_PATH = "styles/app_style.tcss"
+    # CSS_PATH = "styles/app_style.tcss"
+    CSS_PATH = str(Path(__file__).parent / "styles" / "app_style.tcss")
     MAX_CONTEXT = 20
 
     BINDINGS = [
