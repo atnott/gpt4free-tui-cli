@@ -1,0 +1,52 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Страница-1" id="xtI6SMeDE91cVUBjOqX5">
+    <mxGraphModel dx="11" dy="-591" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="niLMsvELm257otAGBIG1-58" parent="1" style="swimlane;whiteSpace=wrap;html=1;startSize=30;collapsible=0;recursiveResize=0;expand=0;fontStyle=1;fillColor=#f5f5f5;strokeColor=#666666;" value="Разрабатываемое консольное приложение" vertex="1">
+          <mxGeometry height="520" width="480" x="1620" y="1380" as="geometry" />
+        </mxCell>
+        <mxCell id="niLMsvELm257otAGBIG1-59" parent="niLMsvELm257otAGBIG1-58" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;html=1;" value="Выполнить текстовый запрос&lt;br&gt;к искусственному интеллекту" vertex="1">
+          <mxGeometry height="70" width="190" x="30" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="niLMsvELm257otAGBIG1-60" parent="niLMsvELm257otAGBIG1-58" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;html=1;" value="Просмотреть таблицу&lt;br&gt;доступных моделей" vertex="1">
+          <mxGeometry height="70" width="190" x="30" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="niLMsvELm257otAGBIG1-61" parent="niLMsvELm257otAGBIG1-58" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;html=1;" value="Просмотреть таблицу&lt;br&gt;активных провайдеров" vertex="1">
+          <mxGeometry height="70" width="190" x="30" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="niLMsvELm257otAGBIG1-62" parent="niLMsvELm257otAGBIG1-58" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;html=1;" value="Автоматически сохранить&lt;br&gt;настройки сессии" vertex="1">
+          <mxGeometry height="70" width="170" x="280" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="niLMsvELm257otAGBIG1-63" parent="niLMsvELm257otAGBIG1-58" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;html=1;" value="Запустить интерактивный&lt;br&gt;диалог (TUI-режим)" vertex="1">
+          <mxGeometry height="70" width="190" x="30" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="niLMsvELm257otAGBIG1-64" parent="niLMsvELm257otAGBIG1-58" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;html=1;" value="Управлять сессиями чатов&lt;br&gt;(просмотр, создание, выбор)" vertex="1">
+          <mxGeometry height="70" width="190" x="30" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="niLMsvELm257otAGBIG1-65" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Пользователь" vertex="1">
+          <mxGeometry height="60" width="30" x="1500" y="1530" as="geometry" />
+        </mxCell>
+        <mxCell id="niLMsvELm257otAGBIG1-66" edge="1" parent="1" source="niLMsvELm257otAGBIG1-65" style="edgeStyle=none;html=1;endArrow=none;endFill=0;strokeColor=#6c8ebf;strokeWidth=1.5;rounded=0;" target="niLMsvELm257otAGBIG1-59">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="niLMsvELm257otAGBIG1-67" edge="1" parent="1" source="niLMsvELm257otAGBIG1-65" style="edgeStyle=none;html=1;endArrow=none;endFill=0;strokeColor=#6c8ebf;strokeWidth=1.5;rounded=0;" target="niLMsvELm257otAGBIG1-60">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="niLMsvELm257otAGBIG1-68" edge="1" parent="1" source="niLMsvELm257otAGBIG1-65" style="edgeStyle=none;html=1;endArrow=none;endFill=0;strokeColor=#6c8ebf;strokeWidth=1.5;rounded=0;" target="niLMsvELm257otAGBIG1-61">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="niLMsvELm257otAGBIG1-69" edge="1" parent="1" source="niLMsvELm257otAGBIG1-59" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endSize=8;html=1;labelBackgroundColor=#ffffff;strokeColor=#666666;rounded=0;" target="niLMsvELm257otAGBIG1-62" value="&amp;lt;&amp;lt;включает&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="niLMsvELm257otAGBIG1-70" edge="1" parent="1" source="niLMsvELm257otAGBIG1-65" style="edgeStyle=none;html=1;endArrow=none;endFill=0;strokeColor=#6c8ebf;strokeWidth=1.5;rounded=0;" target="niLMsvELm257otAGBIG1-63">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="niLMsvELm257otAGBIG1-71" edge="1" parent="1" source="niLMsvELm257otAGBIG1-65" style="edgeStyle=none;html=1;endArrow=none;endFill=0;strokeColor=#6c8ebf;strokeWidth=1.5;rounded=0;" target="niLMsvELm257otAGBIG1-64">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
