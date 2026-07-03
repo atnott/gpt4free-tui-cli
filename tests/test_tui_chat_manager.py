@@ -52,3 +52,57 @@ class TestCreateNewChat:
             manager.create_new_chat(mock_app, mock_screen)
 
         mock_app.db.create_chat.assert_called_once_with("New Chat")
+
+class TestDeleteChat:
+    """Тесты удаления чата."""
+
+    def test_delete_chat_not_current(self, mock_app, mock_screen):
+        """Удаление неактивного чата."""
+        manager = ChatManager()
+
+        mock_app.current_chat_id = 1
+        mock_item = MagicMock()
+        mock_item.chat_id = 2
+
+        manager.delete_chat(mock_app, mock_screen, mock_item)
+
+        mock_app.db.delete_chat.assert_called_once_with(2)
+        mock_item.remove.assert_called_once()
+        mock_screen.switch_to_chat.assert_not_called()
+
+    def test_delete_current_chat_with_remaining(self, mock_app, mock_screen):
+        """Удаление активного чата, есть другие чаты."""
+        manager = ChatManager()
+
+        mock_app.current_chat_id = 2
+
+        mock_item1 = MagicMock()
+        mock_item1.chat_id = 1
+        mock_item2 = MagicMock()
+        mock_item2.chat_id = 2  # текущий
+
+        mock_screen.query.return_value = [mock_item1, mock_item2]
+
+        manager.delete_chat(mock_app, mock_screen, mock_item2)
+
+        mock_app.db.delete_chat.assert_called_once_with(2)
+        mock_screen.switch_to_chat.assert_called_once_with(1)
+        mock_item2.remove.assert_called_once()
+
+    def test_delete_current_chat_last_one(self, mock_app, mock_screen):
+        """Удаление последнего чата — создаётся новый."""
+        manager = ChatManager()
+
+        mock_app.current_chat_id = 1
+
+        mock_item = MagicMock()
+        mock_item.chat_id = 1
+
+        mock_screen.query.return_value = [mock_item]
+
+        with patch.object(manager, "create_new_chat") as mock_create:
+            manager.delete_chat(mock_app, mock_screen, mock_item)
+
+        mock_app.db.delete_chat.assert_called_once_with(1)
+        mock_create.assert_called_once_with(mock_app, mock_screen, "New Chat")
+        mock_item.remove.assert_called_once()
