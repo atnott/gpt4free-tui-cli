@@ -73,3 +73,20 @@ class TestAppHeader:
         header.update_chat_title("My Chat")
 
         mock_label.update.assert_called_once_with("My Chat")
+
+class TestUserMessage:
+    """Тесты сообщения пользователя."""
+
+    def test_init(self):
+        """Инициализация."""
+        msg = UserMessage("Hello")
+        assert msg.text == "Hello"
+
+    def test_compose(self):
+        """Компоновка содержит Static с текстом."""
+        msg = UserMessage("Test message")
+        children = list(msg.compose())
+
+        assert len(children) == 1
+        assert isinstance(children[0], Static)
+        assert children[0].renderable == "Test message"
