@@ -182,3 +182,33 @@ class TestListModelsCommand:
         
         result = runner.invoke(app, ["models"])
         assert result.exit_code == 0
+
+class TestListProvidersCommand:
+    """Тесты команды providers."""
+
+    @patch("cli.engine")
+    @patch("cli.console")
+    def test_list_providers(self, mock_console, mock_engine):
+        """Вывод списка провайдеров."""
+        mock_provider1 = MagicMock()
+        mock_provider1.name = "ProviderA"
+        mock_provider1.supported_models = ["gpt-4o", "claude-3"]
+        
+        mock_provider2 = MagicMock()
+        mock_provider2.name = "ProviderB"
+        mock_provider2.supported_models = ["gpt-4o-mini"]
+        
+        mock_engine.get_available_providers.return_value = [mock_provider1, mock_provider2]
+        
+        result = runner.invoke(app, ["providers"])
+        
+        assert result.exit_code == 0
+        mock_console.print.assert_called_once()
+
+    @patch("cli.engine")
+    def test_list_providers_empty(self, mock_engine):
+        """Пустой список провайдеров."""
+        mock_engine.get_available_providers.return_value = []
+        
+        result = runner.invoke(app, ["providers"])
+        assert result.exit_code == 0
