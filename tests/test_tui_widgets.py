@@ -455,3 +455,130 @@ class TestChatSidebar:
         mock_chat_list.mount.assert_called_once_with(mock_item)
         mock_item.scroll_visible.assert_called_once()
         sidebar.screen.switch_to_chat.assert_called_once_with(5)
+
+class TestChoosePanel:
+    """Тесты панели выбора модели/провайдера."""
+
+    def test_compose_with_models(self):
+        """Компоновка с доступными моделями."""
+        panel = ChoosePanel()
+        panel.app = MagicMock()
+        panel.app.engine.get_all_models.return_value = ["gpt-4o", "claude-3"]
+        panel.app.model = "gpt-4o"
+
+        children = list(panel.compose())
+
+        assert len(children) == 3 
+
+    def test_compose_fallback_model(self):
+        """Выбор fallback модели."""
+        panel = ChoosePanel()
+        panel.app = MagicMock()
+        panel.app.engine.get_all_models.return_value = ["gpt-4o", "claude-3"]
+        panel.app.model = "nonexistent"
+        panel.app.DEFAULT_MODEL = "gpt-4o"
+
+        list(panel.compose())
+
+        assert panel.app.model == "gpt-4o"
+
+    def test_on_mount_loads_providers(self):
+        """Загрузка провайдеров при монтировании."""
+        panel = ChoosePanel()
+        panel.app = MagicMock()
+        panel.app.model = "gpt-4o"
+
+        mock_provider = MagicMock()
+        mock_provider.name = "ProviderA"
+        mock_provider.supported_models = ["gpt-4o"]
+
+        panel.app.engine.get_available_providers.return_value = [mock_provider]
+
+        panel.load_providers = MagicMock(return_value=["ProviderA"])
+
+        panel.on_mount()
+
+        panel.load_providers.assert_called_once_with("gpt-4o")
+
+    def test_load_providers(self):
+        """Загрузка провайдеров для модели."""
+        panel = ChoosePanel()
+        panel.app = MagicMock()
+        panel.app.model = "gpt-4o"
+
+        mock_provider1 = MagicMock()
+        mock_provider1.name = "ProviderA"
+        mock_provider1.supported_models = ["gpt-4o", "claude-3"]
+
+        mock_provider2 = MagicMock()
+        mock_provider2.name = "ProviderB"
+        mock_provider2.supported_models = ["claude-3"]
+
+        panel.app.engine.get_available_providers.return_value = [mock_provider1, mock_provider2]
+
+        mock_option_list = MagicMock()
+        panel.query_one = MagicMock(return_value=mock_option_list)
+
+        result = panel.load_providers("gpt-4o")
+
+        assert result == ["ProviderA"]
+        mock_option_list.clear_options.assert_called_once()
+        assert mock_option_list.add_option.call_count == 2 
+
+    def test_on_select_changed_updates_model(self):
+        """Изменение выбора модели."""
+        panel = ChoosePanel()
+        panel.app = MagicMock()
+        panel.app.model = "gpt-4o"
+
+        panel.load_providers = MagicMock(return_value=["ProviderA"])
+
+        mock_event = MagicMock()
+        mock_event.select.id = "model"
+        mock_event.value = "claude-3"
+
+        panel.on_select_changed(mock_event)
+
+        assert panel.app.model == "claude-3"
+        panel.app.config.update_config.assert_called_once()
+
+    def test_on_select_changed_blank(self):
+        """Пустой выбор — игнорируется."""
+        panel = ChoosePanel()
+        panel.app = MagicMock()
+
+        mock_event = MagicMock()
+        mock_event.select.id = "model"
+        mock_event.value = MagicMock()
+
+        from textual.widgets import Select
+        mock_event.value = Select.BLANK
+
+        panel.on_select_changed(mock_event)
+
+        panel.app.config.update_config.assert_not_called()
+
+    def test_on_option_list_option_selected_auto(self):
+        """Выбор Auto провайдера."""
+        panel = ChoosePanel()
+        panel.app = MagicMock()
+
+        mock_event = MagicMock()
+        mock_event.option.prompt = "Auto"
+
+        panel.on_option_list_option_selected(mock_event)
+
+        assert panel.app.provider is None
+        panel.app.config.update_config.assert_called_once()
+
+    def test_on_option_list_option_selected_provider(self):
+        """Выбор конкретного провайдера."""
+        panel = ChoosePanel()
+        panel.app = MagicMock()
+
+        mock_event = MagicMock()
+        mock_event.option.prompt = "Bing"
+
+        panel.on_option_list_option_selected(mock_event)
+
+        assert panel.app.provider == "Bing"
