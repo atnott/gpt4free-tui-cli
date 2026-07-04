@@ -66,7 +66,7 @@ gpt4free-tui-cli/
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Для Windows
-powershell -ExecutionPolicy Bypass -Command "irm [https://astral.sh/uv/install.ps1](https://astral.sh/uv/install.ps1) | iex"
+powershell -ExecutionPolicy Bypass -Command "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
 ### 2. Клонирование репозитория
