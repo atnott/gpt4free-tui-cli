@@ -65,7 +65,7 @@ gpt4free-tui-cli/
 ### 1. Установка менеджера uv (если не установлен)
 ```bash
 # Для macOS/Linux
-curl -LsSf [https://astral.sh/uv/install.sh](https://astral.sh/uv/install.sh) | sh
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Для Windows
 powershell -ExecutionPolicy Bypass -Command "irm [https://astral.sh/uv/install.ps1](https://astral.sh/uv/install.ps1) | iex"
@@ -73,7 +73,7 @@ powershell -ExecutionPolicy Bypass -Command "irm [https://astral.sh/uv/install.p
 
 ### 2. Клонирование репозитория
 ```bash
-git clone [https://github.com/atnott/gpt4free-tui-cli.git](https://github.com/atnott/gpt4free-tui-cli.git)
+git clone https://github.com/atnott/gpt4free-tui-cli.git
 cd gpt4free-tui-cli
 ```
 
