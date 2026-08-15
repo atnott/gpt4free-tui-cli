@@ -1,96 +1,129 @@
-# GPT4Free TUI & CLI Client 🚀
+# GPT4Free TUI & CLI Client
 
-[![Python Version](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Package Manager](https://img.shields.io/badge/managed%20by-uv-purple.svg)](https://github.com/astral-sh/uv)
+Терминальный клиент над `g4f` с двумя интерфейсами: Typer CLI для одного
+запроса и Textual TUI для работы с чатами. Проект находится на учебном
+baseline: packaging, offline-проверки и границы зависимостей стабилизированы,
+а provider-neutral application layer и надёжное хранение ещё не выделены.
 
-Кроссплатформенное консольное приложение для асинхронного взаимодействия с большими языковыми моделями (LLM) через открытые API ИИ-провайдеров. Проект совмещает в себе классический интерфейс командной строки (**CLI**) для быстрых команд и полноценный интерактивный текстовый интерфейс (**TUI**) для комфортной работы в режиме чата прямо внутри терминала.
+## Возможности
 
----
+- потоковый текстовый ответ от `g4f`;
+- CLI-команды для моделей, провайдеров и чатов;
+- Textual TUI с историей диалогов и выбором модели/провайдера;
+- SQLite для чатов и сообщений, JSON для последней модели, провайдера и чата;
+- Markdown-рендеринг ответов через Rich;
+- deterministic `ScriptedProvider` для offline-тестов.
 
-## Особенности проекта
+Локальных инструментов и tool calling в приложении нет. Строка вида
+`<tool_call>...</tool_call>` считается обычным текстом и не выполняется.
 
-* **Гибридный интерфейс:**
-    * **CLI режим:** Быстрые одиночные запросы через флаги командной строки с автоматическим подтягиванием контекста последних сессий.
-    * **TUI режим:** Полноценное интерактивное рабочее пространство в терминале с боковым сайдбаром чатов и логами в реальном времени.
-* **Асинхронный движок (Asyncio):** Потоковый вывод ответа от нейросетей в режиме реального времени с частотой обновления экрана до 15 FPS через диспетчер `Live`.
-* **Визуальное оформление:** Автоматический парсинг Markdown-разметки, таблиц и подсветка синтаксиса блоков исходного кода (благодаря интеграции пакета `Rich`).
-* **Локальное хранение данных:** Полноценный менеджмент сессий, истории сообщений и каскадных удалений диалогов на базе встроенной СУБД SQLite.
-* **Изолированная конфигурация:** Сохранение состояния приложения (активная модель, провайдер, ID текущего чата) в скрытый JSON-конфиг по Unix-стандартам (`~/.config/`).
-* **Текстовый stream:** Ответы модели отображаются по мере поступления. Локальные инструменты и tool calling временно отсутствуют.
+## Установка
 
----
+Нужен Python 3.12+ и [uv](https://docs.astral.sh/uv/).
 
-##  Технологический стек
-
-* **Язык программирования:** Python 3.12+
-* **Пакетный менеджер / Сборщик:** [uv](https://github.com/astral-sh/uv)
-* **Интерфейс командной строки:** [Typer](https://typer.tiangolo.com/) + [Rich](https://github.com/Textualize/rich)
-* **Текстовый интерфейс (TUI):** [Textual](https://textual.textualize.io/)
-* **Ядро взаимодействия с ИИ:** Библиотека `g4f`
-* **База данных:** SQLite
-
----
-
-##  Структура репозитория
-
-```text
-gpt4free-tui-cli/
-├── docs/                 # Проектная документация и схемы
-│   └── diagrams/         # Схема БД и диаграммы
-├── src/                  # Исходный код приложения
-│   ├── core/             # Изолированное архитектурное ядро
-│   │   ├── config.py     # Класс ConfigManager (управление JSON-конфигурацией)
-│   │   ├── database.py   # Класс DatabaseManager (управление базой данных SQLite)
-│   │   └── engine.py     # Класс G4FEngine
-│   ├── tui/              # Модули интерфейса
-│   │   ├── screens/      # Архитектура экранов TUI
-│   │   ├── styles/       # Файлы стилей визуального оформления (.tcss)
-│   │   ├── tui_core/     # Логика управления TUI (ChatManager и др.)
-│   │   ├── widgets/      # Кастомные компоненты (Sidebar, ChatInput, Logs и др.)
-│   │   └── app.py        # Класс G4FreeTUI
-│   └── cli.py            # Точка входа в приложение
-├── tests/                # Модульные тесты подсистем
-├── pyproject.toml        # Спецификация зависимостей и правил сборки пакета
-└── uv.lock               # Зафиксированный граф зависимостей пакетного менеджера uv
-```
-
----
-
-## Установка и глобальный запуск
-
-### 1. Установка менеджера uv (если не установлен)
-```bash
-# Для macOS/Linux
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Для Windows
-powershell -ExecutionPolicy Bypass -Command "irm https://astral.sh/uv/install.ps1 | iex"
-```
-
-### 2. Клонирование репозитория
 ```bash
 git clone https://github.com/atnott/gpt4free-tui-cli.git
 cd gpt4free-tui-cli
+uv sync --group dev
 ```
 
-### 3. Синхронизация утилиты uv 
+Если домашний cache `uv` недоступен для записи, используйте отдельный cache:
+
 ```bash
-uv sync
+UV_CACHE_DIR=/tmp/gpt4free-tui-cli-uv-cache uv sync --group dev
 ```
 
-## Быстрый старт
+## Запуск
 
-* **Интерактивный режим (TUI):**
-  ```bash
-  uv run src/cli.py main
-  ```
-*  **Быстрый одиночный запрос (CLI):**
-    ```bash
-   uv run src/cli.py main -p "Текст вашего запроса"
-   ```
+Проверить установленную в окружение точку входа:
+
+```bash
+uv run g4f-cli --help
+uv run g4f-cli --version
+```
+
+Открыть интерактивный TUI:
+
+```bash
+uv run g4f-cli main
+```
+
+Отправить одиночный запрос (это обращается к внешнему `g4f`-провайдеру):
+
+```bash
+uv run g4f-cli main --prompt "Объясни async/await в Python"
+```
+
+## Команды
+
+| Команда | Назначение | Создаёт SQLite БД |
+| --- | --- | --- |
+| `g4f-cli --help` | Справка | Нет |
+| `g4f-cli --version` | Версия пакета | Нет |
+| `g4f-cli models` | Каталог моделей от `g4f` | Нет |
+| `g4f-cli providers` | Каталог провайдеров от `g4f` | Нет |
+| `g4f-cli chats` | Показать чаты | Да |
+| `g4f-cli new-chat "Название"` | Создать и выбрать чат | Да |
+| `g4f-cli select-chat 2` | Выбрать существующий чат | Да |
+| `g4f-cli main` | Запустить TUI | Да |
+| `g4f-cli main -p "..."` | Отправить запрос в чат | Да |
+
+`models` и `providers` используют metadata библиотеки `g4f`. Статус
+`provider.working` не является проверкой доступности провайдера.
+
+## Данные и контекст
+
+- Конфигурация: `~/.config/gpt4free-tui-cli/config.json`.
+- SQLite: `storage.db` в корне текущего checkout. Это известное временное
+  ограничение: при установленной сборке путь пока не перенесён в user data
+  directory.
+- CLI передаёт в запрос последние 10 сообщений истории.
+- TUI передаёт последние 20 непустых сообщений с ролями `user` и `assistant`.
+
+Окно контекста считается по сообщениям, а не по токенам. В проекте пока нет
+summary, векторного поиска, профиля пользователя или отдельного memory API.
+
+## Структура
+
+```text
+src/gpt4free_tui_cli/
+├── bootstrap.py              # единственный composition root
+├── core/                     # config, SQLite и конкретный g4f adapter
+├── presentation/cli.py       # Typer entry point
+├── testing/scripted_provider.py
+└── tui/                      # Textual app, screens и widgets
+tests/                        # deterministic offline tests
+.github/workflows/ci.yml      # quality gates и wheel smoke test
+```
+
+`bootstrap.py` создаёт concrete-зависимости для команд, которым они нужны.
+Поэтому импорт CLI и read-only команды не инициализируют БД.
+
+## Проверка качества
+
+```bash
+UV_CACHE_DIR=/tmp/gpt4free-tui-cli-uv-cache uv lock --check --offline
+UV_CACHE_DIR=/tmp/gpt4free-tui-cli-uv-cache uv run ruff check .
+UV_CACHE_DIR=/tmp/gpt4free-tui-cli-uv-cache uv run ruff format --check .
+UV_CACHE_DIR=/tmp/gpt4free-tui-cli-uv-cache uv run mypy
+UV_CACHE_DIR=/tmp/gpt4free-tui-cli-uv-cache uv run pytest -q --cov
+UV_CACHE_DIR=/tmp/gpt4free-tui-cli-uv-cache uv build
+```
+
+CI также устанавливает собранный wheel в чистый временный virtualenv и
+запускает `g4f-cli --help`.
+
+## Текущие ограничения
+
+- CLI и TUI пока реализуют похожий use case раздельно; общий `ChatService`
+  появится в следующем архитектурном этапе.
+- `g4f` пока импортируется напрямую concrete engine, поэтому провайдер ещё не
+  сменяем через отдельный port.
+- Нет token budget, суммаризации истории, cancellation/retry policy и
+  полноценного покрытия TUI type checking.
+- Ошибки сетевого запроса требуют отдельного UX-улучшения: TUI пока может
+  сохранять текст ошибки как ответ ассистента.
 
 ## Лицензия
 
----
-Проект распространяется под лицензией MIT. Подробнее см. [LICENSE](./LICENSE).
+Проект распространяется по лицензии [MIT](LICENSE).
