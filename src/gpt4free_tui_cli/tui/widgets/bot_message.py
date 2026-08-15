@@ -1,7 +1,7 @@
 from textual.widgets import Static
 from textual.containers import Vertical
 from rich.markdown import Markdown as RichMarkdown
-from tui.widgets.bot_loading import BotLoading
+from gpt4free_tui_cli.tui.widgets.bot_loading import BotLoading
 
 class BotMessage(Vertical):
     """Контейнер для ответа нейросети"""

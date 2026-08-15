@@ -1,13 +1,13 @@
 import typer
 import asyncio
-from core.engine import G4FEngine
+from gpt4free_tui_cli.core.engine import G4FEngine
 from rich.markdown import Markdown
 from rich.console import Console
-from core.config import ConfigManager
+from gpt4free_tui_cli.core.config import ConfigManager
 from rich.table import Table
 from rich.live import Live
-from core.database import DatabaseManager
-from tui.app import G4FreeTUI
+from gpt4free_tui_cli.core.database import DatabaseManager
+from gpt4free_tui_cli.tui.app import G4FreeTUI
 
 app = typer.Typer(help='GPT4FREE Terminal Client')
 engine = G4FEngine()

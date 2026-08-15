@@ -1,8 +1,8 @@
 import importlib.util
 from types import SimpleNamespace
 
-from core.engine import G4FEngine
-from tui.tui_core.chat_processor import process_chat_stream
+from gpt4free_tui_cli.core.engine import G4FEngine
+from gpt4free_tui_cli.tui.tui_core.chat_processor import process_chat_stream
 
 
 class FakeDatabase:
@@ -92,4 +92,4 @@ def test_engine_has_no_tool_stream_api() -> None:
 
 
 def test_removed_tool_package_is_not_importable() -> None:
-    assert importlib.util.find_spec("core.tools") is None
+    assert importlib.util.find_spec("gpt4free_tui_cli.core.tools") is None

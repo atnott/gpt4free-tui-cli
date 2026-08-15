@@ -2,11 +2,11 @@ from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.screen import Screen
 from textual.widgets import Footer
-from tui.widgets.chat_input import ChatInput
-from tui.widgets.chat_log import ChatLog
-from tui.widgets.choose_panel import ChoosePanel
-from tui.widgets.chats_sidebar import ChatSidebar
-from tui.widgets.header import AppHeader
+from gpt4free_tui_cli.tui.widgets.chat_input import ChatInput
+from gpt4free_tui_cli.tui.widgets.chat_log import ChatLog
+from gpt4free_tui_cli.tui.widgets.choose_panel import ChoosePanel
+from gpt4free_tui_cli.tui.widgets.chats_sidebar import ChatSidebar
+from gpt4free_tui_cli.tui.widgets.header import AppHeader
 
 
 class ChatScreen(Screen):
@@ -42,7 +42,7 @@ class ChatScreen(Screen):
             is_user = row["role"] == "user"
             chat_log.append_message(row["content"], is_user=is_user)
 
-        from tui.widgets.chat_item import ChatItem
+        from gpt4free_tui_cli.tui.widgets.chat_item import ChatItem
 
         for item in self.query(ChatItem):
             btn = item.query_one("#btn_select")

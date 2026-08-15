@@ -1,12 +1,12 @@
 from textual.app import App, ComposeResult
 from textual.widgets import Input
 from textual.reactive import reactive
-from core.config import ConfigManager
-from core.engine import G4FEngine
-from core.database import DatabaseManager
-from tui.tui_core.chat_manager import ChatManager
-from tui.screens.chat import ChatScreen
-from tui.widgets.header import AppHeader
+from gpt4free_tui_cli.core.config import ConfigManager
+from gpt4free_tui_cli.core.engine import G4FEngine
+from gpt4free_tui_cli.core.database import DatabaseManager
+from gpt4free_tui_cli.tui.tui_core.chat_manager import ChatManager
+from gpt4free_tui_cli.tui.screens.chat import ChatScreen
+from gpt4free_tui_cli.tui.widgets.header import AppHeader
 from pathlib import Path
 
 

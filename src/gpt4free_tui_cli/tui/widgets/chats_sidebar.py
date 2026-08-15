@@ -1,7 +1,7 @@
 from textual.app import ComposeResult
 from textual.containers import VerticalScroll, Vertical
 from textual.widgets import Button
-from tui.widgets.chat_item import ChatItem
+from gpt4free_tui_cli.tui.widgets.chat_item import ChatItem
 
 class ChatSidebar(Vertical):
     """Боковая панель, содержащая кнопку создания и список чатов"""

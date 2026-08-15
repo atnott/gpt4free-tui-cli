@@ -1,6 +1,6 @@
 from textual.app import App
 from textual.screen import Screen
-from tui.widgets.chat_item import ChatItem 
+from gpt4free_tui_cli.tui.widgets.chat_item import ChatItem
 
 class ChatManager:
     def __init__(self) -> None:

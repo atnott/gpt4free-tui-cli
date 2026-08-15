@@ -1,6 +1,6 @@
 from textual.containers import VerticalScroll
-from tui.widgets.bot_message import BotMessage
-from tui.widgets.user_message import UserMessage
+from gpt4free_tui_cli.tui.widgets.bot_message import BotMessage
+from gpt4free_tui_cli.tui.widgets.user_message import UserMessage
 
 class ChatLog(VerticalScroll):
     def __init__(self, id = None):

@@ -1,5 +1,5 @@
 from textual.widgets import Input
-from tui.tui_core.chat_processor import process_chat_stream
+from gpt4free_tui_cli.tui.tui_core.chat_processor import process_chat_stream
 
 class ChatInput(Input):
     def __init__(self, id = None):
