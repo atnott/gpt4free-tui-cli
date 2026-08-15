@@ -11,6 +11,10 @@ dependencies = [
     "typer>=0.26.7",
 ]
 
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
@@ -23,10 +27,11 @@ pythonpath = ["src"]
 asyncio_mode = "auto"
 
 [project.scripts]
-g4f-cli = 'cli:app'
+g4f-cli = "gpt4free_tui_cli.presentation.cli:app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["gpt4free_tui_cli*"]
 
 [tool.setuptools.package-data]
 "*" = ["*.tcss", "*.css"]
