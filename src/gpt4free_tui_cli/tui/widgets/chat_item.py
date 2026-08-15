@@ -3,9 +3,10 @@ from textual.containers import Horizontal
 from textual.widget import Widget
 from textual.widgets import Button, Input
 
+
 class ChatItem(Widget):
     """Компонент одной строки чата в списке"""
-    
+
     def __init__(self, chat_id: int, title: str, is_active: bool = False) -> None:
         super().__init__(id=f"chat_item_{chat_id}")
         self.chat_id = chat_id
@@ -17,35 +18,35 @@ class ChatItem(Widget):
         btn_select = self.query_one("#btn_select")
         btn_rename = self.query_one("#btn_rename")
         input_rename = self.query_one("#input_rename")
-        
+
         btn_select.styles.display = "none"
         btn_rename.styles.display = "none"
-        
+
         input_rename.styles.display = "block"
         input_rename.focus()
 
     def compose(self) -> ComposeResult:
         with Horizontal(classes="chat-item-row"):
             yield Button(
-                self.chat_title, 
-                id="btn_select", 
-                classes="active-chat" if self.is_active else ""
+                self.chat_title,
+                id="btn_select",
+                classes="active-chat" if self.is_active else "",
             )
-            
+
             edit_input = Input(value=self.chat_title, id="input_rename")
             edit_input.styles.display = "none"
             yield edit_input
-            
+
             yield Button("R", id="btn_rename", classes="btn-action")
             yield Button("-", id="btn_delete", classes="btn-action")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "btn_select":
             self.screen.switch_to_chat(self.chat_id)
-            
+
         elif event.button.id == "btn_rename":
             self.edit_name()
-            
+
         elif event.button.id == "btn_delete":
             self.app.chat_manager.delete_chat(self.app, self.screen, self)
 
@@ -56,7 +57,7 @@ class ChatItem(Widget):
                 self.app.chat_manager.rename_chat(self.app, self, new_title)
             else:
                 pass
-            
+
             self.query_one("#btn_select").styles.display = "block"
             self.query_one("#btn_rename").styles.display = "block"
             self.query_one("#input_rename").styles.display = "none"
