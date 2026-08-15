@@ -4,12 +4,11 @@ from textual.reactive import reactive
 from core.config import ConfigManager
 from core.engine import G4FEngine
 from core.database import DatabaseManager
-from core.tools import builtins as builtins
-from core.tools.base import get_global_registry
 from tui.tui_core.chat_manager import ChatManager
 from tui.screens.chat import ChatScreen
 from tui.widgets.header import AppHeader
 from pathlib import Path
+
 
 class G4FreeTUI(App):
     # CSS_PATH = "styles/app_style.tcss"
@@ -36,8 +35,6 @@ class G4FreeTUI(App):
         self.config = ConfigManager()
         self.db = DatabaseManager()
         self.chat_manager = ChatManager()
-        self.tool_registry = get_global_registry()
-
         settings = self.config.load_config() or {}
 
         self.model = settings.get("last_model")
@@ -56,7 +53,7 @@ class G4FreeTUI(App):
             self.config.update_config(
                 last_model=self.model,
                 last_provider=self.provider,
-                current_chat_id=self.current_chat_id
+                current_chat_id=self.current_chat_id,
             )
         except Exception as e:
             print(f"Не удалось сохранить конфигурацию: {e}")
@@ -66,15 +63,14 @@ class G4FreeTUI(App):
             if not isinstance(self.focused, Input):
                 event.prevent_default()
                 event.stop()
-                
+
                 try:
                     self.screen.query_one("#chat_input").focus()
                 except Exception:
                     pass
-        
 
     def resolve_chat_id(self, saved_chat_id: int | None) -> int | None:
-        '''Проверяет, существует ли сохранённый чат в текущей БД; иначе берёт первый доступный'''
+        """Проверяет, существует ли сохранённый чат в текущей БД; иначе берёт первый доступный"""
         all_chats = self.db.get_all_chats()
         valid_ids = {row["id"] for row in all_chats}
 
@@ -82,8 +78,6 @@ class G4FreeTUI(App):
             return saved_chat_id
 
         return all_chats[0]["id"] if all_chats else None
-
-    
 
     def action_create_chat(self) -> None:
         """Создание нового чата (Ctrl+N)"""
@@ -93,8 +87,12 @@ class G4FreeTUI(App):
         """Удаление текущего активного чата (Ctrl+D)"""
         if self.current_chat_id is not None:
             try:
-                current_item = self.screen.query_one(f"#chat_item_{self.current_chat_id}") 
-                self.chat_manager.delete_chat(app=self, screen=self.screen, chat_item=current_item)
+                current_item = self.screen.query_one(
+                    f"#chat_item_{self.current_chat_id}"
+                )
+                self.chat_manager.delete_chat(
+                    app=self, screen=self.screen, chat_item=current_item
+                )
             except Exception:
                 pass
 
@@ -102,11 +100,13 @@ class G4FreeTUI(App):
         """Переименование текущего активного чата (Ctrl+R)"""
         if self.current_chat_id is not None:
             try:
-                current_item = self.screen.query_one(f"#chat_item_{self.current_chat_id}") 
+                current_item = self.screen.query_one(
+                    f"#chat_item_{self.current_chat_id}"
+                )
                 current_item.edit_name()
             except Exception:
                 pass
-    
+
     def action_switch_to_previous_chat(self) -> None:
         """Переключение на предыдущий чат (Ctrl+Up)"""
         self.chat_manager.switch_to_previous_chat(app=self, screen=self.screen)
@@ -122,8 +122,7 @@ class G4FreeTUI(App):
     def action_switch_provider(self) -> None:
         """Переключение провайдера (Ctrl+J)"""
         self.screen.query_one("#providers").focus()
-            
-        
+
 
 if __name__ == "__main__":
     G4FreeTUI().run()

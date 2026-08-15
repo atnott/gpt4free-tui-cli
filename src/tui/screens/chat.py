@@ -8,14 +8,14 @@ from tui.widgets.choose_panel import ChoosePanel
 from tui.widgets.chats_sidebar import ChatSidebar
 from tui.widgets.header import AppHeader
 
-class ChatScreen(Screen):
 
+class ChatScreen(Screen):
     def compose(self) -> ComposeResult:
-        yield AppHeader(id = "Header")
+        yield AppHeader(id="Header")
 
         with Horizontal():
             yield ChatSidebar(id="sidebar")
-            
+
             with Vertical(id="chat_panel"):
                 yield ChatLog(id="chat_log")
                 yield ChatInput(id="chat_input")
@@ -28,20 +28,22 @@ class ChatScreen(Screen):
         if self.app.current_chat_id:
             self.switch_to_chat(self.app.current_chat_id)
 
-
     def switch_to_chat(self, chat_id: int) -> None:
         """Переключает активный чат и обновляет лог чата"""
         self.app.current_chat_id = chat_id
-        
+
         chat_log = self.query_one("#chat_log")
         chat_log.query("*").remove()
 
         history = self.app.db.get_all_chat_messages(chat_id)
         for row in history:
-            is_user = (row["role"] == "user")
+            if row["role"] not in ("user", "assistant") or not row["content"]:
+                continue
+            is_user = row["role"] == "user"
             chat_log.append_message(row["content"], is_user=is_user)
-            
+
         from tui.widgets.chat_item import ChatItem
+
         for item in self.query(ChatItem):
             btn = item.query_one("#btn_select")
             if item.chat_id == chat_id:
