@@ -1,10 +1,7 @@
 from textual.app import App, ComposeResult
 from textual.widgets import Input
 from textual.reactive import reactive
-from gpt4free_tui_cli.core.config import ConfigManager
-from gpt4free_tui_cli.core.engine import G4FEngine
-from gpt4free_tui_cli.core.database import DatabaseManager
-from gpt4free_tui_cli.tui.tui_core.chat_manager import ChatManager
+from gpt4free_tui_cli.bootstrap import ApplicationDependencies
 from gpt4free_tui_cli.tui.screens.chat import ChatScreen
 from gpt4free_tui_cli.tui.widgets.header import AppHeader
 from pathlib import Path
@@ -28,13 +25,13 @@ class G4FreeTUI(App):
     model = reactive("")
     current_chat_title = reactive("")
 
-    def __init__(self) -> None:
+    def __init__(self, dependencies: ApplicationDependencies) -> None:
         super().__init__()
 
-        self.engine = G4FEngine()
-        self.config = ConfigManager()
-        self.db = DatabaseManager()
-        self.chat_manager = ChatManager()
+        self.engine = dependencies.engine
+        self.config = dependencies.config
+        self.db = dependencies.db
+        self.chat_manager = dependencies.chat_manager
         settings = self.config.load_config() or {}
 
         self.model = settings.get("last_model")
@@ -125,4 +122,6 @@ class G4FreeTUI(App):
 
 
 if __name__ == "__main__":
-    G4FreeTUI().run()
+    from gpt4free_tui_cli.bootstrap import create_application_dependencies
+
+    G4FreeTUI(create_application_dependencies()).run()
