@@ -168,6 +168,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Local project instructions and user chat data
+AGENTS.md
+storage.db*
+
 # C extensions
 *.so
 
