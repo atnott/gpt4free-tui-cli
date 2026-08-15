@@ -5,12 +5,15 @@ from textual.widgets.option_list import Option
 
 
 class ChoosePanel(Vertical):
-
     def compose(self) -> ComposeResult:
         models = [model for model in self.app.engine.get_all_models() if model]
 
         if models and self.app.model not in models:
-            fallback_model = self.app.DEFAULT_MODEL if self.app.DEFAULT_MODEL in models else models[0]
+            fallback_model = (
+                self.app.DEFAULT_MODEL
+                if self.app.DEFAULT_MODEL in models
+                else models[0]
+            )
             self.app.model = fallback_model
 
         yield Label("Model", id="model_label")
@@ -45,7 +48,6 @@ class ChoosePanel(Vertical):
 
         return providers
 
-
     def on_select_changed(self, event: Select.Changed):
 
         if event.select.id != "model":
@@ -64,7 +66,6 @@ class ChoosePanel(Vertical):
             self.app.provider = None
 
         self.app.config.update_config(model=self.app.model, provider=self.app.provider)
-
 
     def on_option_list_option_selected(self, event: OptionList.OptionSelected):
 

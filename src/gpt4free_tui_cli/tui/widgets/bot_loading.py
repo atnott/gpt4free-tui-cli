@@ -1,8 +1,9 @@
 from textual.widgets import Static
 
+
 class BotLoading(Static):
     """Кастомный индикатор загрузки"""
-    
+
     def on_mount(self) -> None:
         self.frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
         self.idx = 0
