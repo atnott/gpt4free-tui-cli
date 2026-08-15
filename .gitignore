@@ -170,7 +170,7 @@ __pycache__/
 
 # Local project instructions and user chat data
 AGENTS.md
-storage.db
+storage.db*
 
 # C extensions
 *.so
