@@ -15,7 +15,7 @@ def test_model_request_is_immutable_and_uses_tuple_messages() -> None:
     assert isinstance(Completed(), Completed)
 
     with pytest.raises(AttributeError):
-        request.model = "другая модель"  # type: ignore[misc]
+        request.model = "другая модель"
 
 
 @pytest.mark.parametrize("content", ["", "   "])

@@ -2,8 +2,9 @@
 
 Терминальный клиент над `g4f` с двумя интерфейсами: Typer CLI для одного
 запроса и Textual TUI для работы с чатами. Проект находится на учебном
-baseline: packaging, offline-проверки и границы зависимостей стабилизированы,
-а provider-neutral application layer и надёжное хранение ещё не выделены.
+baseline: packaging, offline-проверки и provider-neutral application layer
+стабилизированы. Перенос пользовательских данных и миграции SQLite — следующий
+этап.
 
 ## Возможности
 
@@ -12,7 +13,8 @@ baseline: packaging, offline-проверки и границы зависимо
 - Textual TUI с историей диалогов и выбором модели/провайдера;
 - SQLite для чатов и сообщений, JSON для последней модели, провайдера и чата;
 - Markdown-рендеринг ответов через Rich;
-- deterministic `ScriptedProvider` для offline-тестов.
+- единый `ChatService` для CLI и отправки сообщений из TUI;
+- deterministic `ScriptedProvider` и offline-контракт адаптера `g4f`.
 
 Локальных инструментов и tool calling в приложении нет. Строка вида
 `<tool_call>...</tool_call>` считается обычным текстом и не выполняется.
@@ -77,8 +79,8 @@ uv run g4f-cli main --prompt "Объясни async/await в Python"
 - SQLite: `storage.db` в корне текущего checkout. Это известное временное
   ограничение: при установленной сборке путь пока не перенесён в user data
   directory.
-- CLI передаёт в запрос последние 10 сообщений истории.
-- TUI передаёт последние 20 непустых сообщений с ролями `user` и `assistant`.
+- CLI и TUI передают последние 20 непустых сообщений с ролями `user` и
+  `assistant` через общую политику `ChatService`.
 
 Окно контекста считается по сообщениям, а не по токенам. В проекте пока нет
 summary, векторного поиска, профиля пользователя или отдельного memory API.
@@ -88,7 +90,11 @@ summary, векторного поиска, профиля пользовате�
 ```text
 src/gpt4free_tui_cli/
 ├── bootstrap.py              # единственный composition root
-├── core/                     # config, SQLite и конкретный g4f adapter
+├── domain/                   # Message, ModelRequest и ProviderEvent
+├── application/              # ChatService и сборка короткого контекста
+├── ports/                    # provider, chat repository и settings ports
+├── adapters/                 # g4f, переходные SQLite и JSON adapters
+├── core/                     # текущие config и SQLite реализации
 ├── presentation/cli.py       # Typer entry point
 ├── testing/scripted_provider.py
 └── tui/                      # Textual app, screens и widgets
@@ -115,14 +121,13 @@ CI также устанавливает собранный wheel в чисты�
 
 ## Текущие ограничения
 
-- CLI и TUI пока реализуют похожий use case раздельно; общий `ChatService`
-  появится в следующем архитектурном этапе.
-- `g4f` пока импортируется напрямую concrete engine, поэтому провайдер ещё не
-  сменяем через отдельный port.
-- Нет token budget, суммаризации истории, cancellation/retry policy и
-  полноценного покрытия TUI type checking.
-- Ошибки сетевого запроса требуют отдельного UX-улучшения: TUI пока может
-  сохранять текст ошибки как ответ ассистента.
+- `g4f` — первый адаптер порта `ModelProvider`; каталог моделей пока остаётся
+  конкретным `g4f`-адаптером.
+- Нет token budget, суммаризации истории, retries и полноценного покрытия TUI
+  type checking.
+- При ошибке provider port `ChatService` не сохраняет ошибку как ответ
+  ассистента; подробные состояния, отмена из Textual и retry UI остаются
+  отдельным UI-этапом.
 
 ## Лицензия
 

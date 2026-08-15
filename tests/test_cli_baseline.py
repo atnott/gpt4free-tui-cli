@@ -28,9 +28,9 @@ def test_models_does_not_construct_database(monkeypatch) -> None:
     from gpt4free_tui_cli import bootstrap
     from gpt4free_tui_cli.presentation import cli
 
-    fake_engine = Mock()
-    fake_engine.get_all_models.return_value = ["offline-model"]
-    monkeypatch.setattr(cli, "create_engine", lambda: fake_engine)
+    fake_catalog = Mock()
+    fake_catalog.get_all_models.return_value = ["offline-model"]
+    monkeypatch.setattr(cli, "create_catalog", lambda: fake_catalog)
     monkeypatch.setattr(
         bootstrap,
         "DatabaseManager",

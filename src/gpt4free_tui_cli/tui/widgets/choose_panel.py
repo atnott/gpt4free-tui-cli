@@ -6,7 +6,7 @@ from textual.widgets.option_list import Option
 
 class ChoosePanel(Vertical):
     def compose(self) -> ComposeResult:
-        models = [model for model in self.app.engine.get_all_models() if model]
+        models = [model for model in self.app.catalog.get_all_models() if model]
 
         if models and self.app.model not in models:
             fallback_model = (
@@ -39,7 +39,7 @@ class ChoosePanel(Vertical):
 
         providers = sorted(
             p.name
-            for p in self.app.engine.get_available_providers()
+            for p in self.app.catalog.get_available_providers()
             if model in p.supported_models
         )
 

@@ -1,5 +1,6 @@
-import typer
 import asyncio
+
+import typer
 from rich.markdown import Markdown
 from rich.console import Console
 from rich.table import Table
@@ -8,8 +9,10 @@ from gpt4free_tui_cli import __version__
 from gpt4free_tui_cli.bootstrap import (
     ApplicationDependencies,
     create_application_dependencies,
-    create_engine,
+    create_catalog,
 )
+from gpt4free_tui_cli.application.chat_service import SendMessage
+from gpt4free_tui_cli.domain.events import Failed, TextDelta
 from gpt4free_tui_cli.tui.app import G4FreeTUI
 
 app = typer.Typer(help="GPT4FREE Terminal Client")
@@ -40,41 +43,28 @@ async def stream_response(
     dependencies: ApplicationDependencies,
     provider: str | None = None,
     message: str | None = None,
-    messages: list[dict] | None = None,
     web_search: bool = False,
     chat_id: int = 1,
-) -> None:
+) -> bool:
     """Асинхронная функция для вывода стрима и подсветки синтаксиса"""
-    try:
-        full_text = ""
-        with Live(
-            Markdown(full_text),
-            console=console,
-            refresh_per_second=15,
-            vertical_overflow="visible",
-        ) as live:
-            async for chunk in dependencies.engine.get_chat_stream(
+    full_text = ""
+    with Live(Markdown(full_text), console=console, refresh_per_second=15) as live:
+        async for event in dependencies.chat_service.send(
+            SendMessage(
+                chat_id=chat_id,
+                prompt=message or "",
                 model=model,
                 provider=provider,
-                message=message,
-                messages=messages,
                 web_search=web_search,
-            ):
-                for char in chunk:
-                    full_text += char
-                    live.update(Markdown(full_text))
-
-                    await asyncio.sleep(0.003)
-
-        dependencies.config.update_config(last_model=model, last_provider=provider)
-
-        if full_text.strip():
-            dependencies.db.save_message(
-                chat_id=chat_id, role="assistant", content=full_text
             )
-
-    except Exception as e:
-        typer.echo(f"\n[Ошибка генерации]: {e}", err=True)
+        ):
+            if isinstance(event, TextDelta):
+                full_text += event.text
+                live.update(Markdown(full_text))
+            elif isinstance(event, Failed):
+                typer.echo(f"\n[Ошибка генерации]: {event.message}", err=True)
+                return False
+    return True
 
 
 @app.command()
@@ -109,25 +99,18 @@ def main(
             f"Запрос к модели [{chosen_model}]{prov_log}{web_log} в чат [ID: {active_chat_id}]..."
         )
 
-        dependencies.db.save_message(
-            chat_id=active_chat_id, role="user", content=prompt
-        )
-        history_rows = dependencies.db.get_chat_history(chat_id=active_chat_id)
-        formatted_messages = [
-            {"role": row["role"], "content": row["content"]} for row in history_rows
-        ]
-
-        asyncio.run(
+        success = asyncio.run(
             stream_response(
                 model=chosen_model,
                 dependencies=dependencies,
                 provider=chosen_provider,
-                message=None,
-                messages=formatted_messages,
+                message=prompt,
                 web_search=web,
                 chat_id=active_chat_id,
             )
         )
+        if not success:
+            raise typer.Exit(code=1)
     else:
         G4FreeTUI(create_application_dependencies()).run()
 
@@ -135,7 +118,7 @@ def main(
 @app.command(name="models")
 def list_models() -> None:
     """Вывести список всех уникальных моделей от работающих провайдеров"""
-    models = create_engine().get_all_models()
+    models = create_catalog().get_all_models()
 
     table = Table(title=f"Доступно моделей: {len(models)}шт")
     table.add_column("Имя модели (-m)")
@@ -148,7 +131,7 @@ def list_models() -> None:
 @app.command(name="providers")
 def list_providers() -> None:
     """Вывести список всех работающих провайдеров и их моделей"""
-    providers_status = create_engine().get_available_providers()
+    providers_status = create_catalog().get_available_providers()
 
     table = Table(
         title=f"Работающие провайдеры ({len(providers_status)}шт)", show_lines=True

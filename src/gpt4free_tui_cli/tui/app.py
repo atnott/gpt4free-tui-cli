@@ -28,7 +28,8 @@ class G4FreeTUI(App):
     def __init__(self, dependencies: ApplicationDependencies) -> None:
         super().__init__()
 
-        self.engine = dependencies.engine
+        self.catalog = dependencies.catalog
+        self.chat_service = dependencies.chat_service
         self.config = dependencies.config
         self.db = dependencies.db
         self.chat_manager = dependencies.chat_manager
