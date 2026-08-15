@@ -1,0 +1,1 @@
+"""Headless use cases приложения."""
