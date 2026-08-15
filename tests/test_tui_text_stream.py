@@ -1,3 +1,4 @@
+import importlib.util
 from types import SimpleNamespace
 
 from core.engine import G4FEngine
@@ -88,3 +89,7 @@ async def test_tui_forwards_tool_markup_as_plain_text_without_executing_it() -> 
 
 def test_engine_has_no_tool_stream_api() -> None:
     assert not hasattr(G4FEngine, "get_chat_stream_with_tools")
+
+
+def test_removed_tool_package_is_not_importable() -> None:
+    assert importlib.util.find_spec("core.tools") is None
